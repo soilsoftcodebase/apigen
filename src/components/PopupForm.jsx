@@ -63,22 +63,26 @@ const PopupForm = ({
       alert("Please provide Project Name, URL, and Version.");
       return;
     }
+
     try {
-      setMessage("Saving project...");
+      setMessage("Saving project and starting test case generation...");
       setLoading(true);
 
-      await saveAndGenerateTestCases({
+      const response = await saveAndGenerateTestCases({
         ProjectName: formData.projectName,
         SwaggerUrl: formData.swaggerUrl,
         SwaggerVersion: formData.swaggerVersion,
       });
 
-      setMessage("Project created successfully! Generating test cases...");
-
-      setTimeout(() => {
-        onClose();
-        navigate("/tests");
-      }, 2000);
+      if (response.IsProcessing) {
+        setMessage(response.Message || "Test cases are being processed...");
+      } else {
+        setMessage("Project saved and test cases generated successfully!");
+        setTimeout(() => {
+          onClose();
+          navigate("/tests");
+        }, 7000);
+      }
     } catch (error) {
       console.error("Error saving project or generating test cases:", error);
       setMessage(

@@ -10,10 +10,10 @@ const Tests = () => {
 
       {/* Body content with padding to prevent overlap */}
       <div
-        className="page-background min-h-screen px-8 py-8"
+        className="page-background min-h-screen px-6 py-6"
         style={{ paddingTop: "180px" }} // Adjust for header height + spacing
       >
-        <div className="p-8 rounded-lg shadow-lg bg-white">
+        <div className="p-6 rounded-lg shadow-lg bg-white">
           <GenerateTestCaseTable />
         </div>
       </div>

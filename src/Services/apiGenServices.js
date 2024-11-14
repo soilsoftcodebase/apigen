@@ -60,7 +60,7 @@ export async function getAllProjects() {
   }
 }
 
-// Function to create saveAndGenerateTestCases
+// // Function to create saveAndGenerateTestCases
 export async function saveAndGenerateTestCases(saveProjectDto) {
   try {
     console.log("Payload:", saveProjectDto);
@@ -74,20 +74,34 @@ export async function saveAndGenerateTestCases(saveProjectDto) {
         },
       }
     );
-    console.log(JSON.stringify(saveProjectDto));
 
-    if (!res.ok) {
-      const errorData = await res.json();
-      console.error("Error response from server:", errorData);
-      console.error("Validation errors:", errorData.errors);
-      throw Error(errorData.title || "Failed to create project");
+    const contentType = res.headers.get("Content-Type");
+
+    // Check if the response is JSON
+    if (contentType && contentType.includes("application/json")) {
+      const data = await res.json();
+
+      if (data.IsProcessing) {
+        console.warn("Test cases are still being processed:", data.Message);
+        return data; // Return the processing response to the caller
+      }
+
+      if (res.ok) {
+        return data; // Return success response
+      } else {
+        throw new Error(
+          data.Message || "Failed to save and generate test cases"
+        );
+      }
+    } else {
+      // Handle non-JSON responses
+      const text = await res.text();
+      console.warn("Unexpected response format:", text);
+      throw new Error(`Unexpected response from server: ${text}`);
     }
-
-    const data = await res.json();
-    return data;
   } catch (err) {
     console.error("Error creating project:", err);
-    throw Error("Error creating project");
+    throw new Error("Error creating project or generating test cases");
   }
 }
 

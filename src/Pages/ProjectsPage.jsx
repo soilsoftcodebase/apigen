@@ -1,26 +1,35 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PopupForm from "../components/PopupForm";
-import { getAllProjects } from "../Services/apiGenServices";
+import {
+  getAllProjects,
+  createProject,
+  generateTestCases,
+} from "../Services/apiGenServices";
 
 const ProjectsPage = () => {
   const [projects, setProjects] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
   const [formData, setFormData] = useState({
     projectName: "",
     swaggerUrl: "",
     swaggerVersion: "",
   });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Fetch all projects on mount
   useEffect(() => {
     const fetchProjects = async () => {
       try {
+        setLoading(true);
         const data = await getAllProjects();
-        console.log(data);
-        setProjects(data);
+        setProjects(data || []);
       } catch (error) {
         console.error("Error fetching projects:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -36,23 +45,121 @@ const ProjectsPage = () => {
     setShowForm(true);
   };
 
-  const handleSaveProject = () => {
-    const newProject = {
-      id: projects.length + 1,
-      ...formData,
-    };
-    setProjects([...projects, newProject]);
-    setShowForm(false);
-    setFormData({
-      projectName: "",
-      swaggerUrl: "",
-      swaggerVersion: "",
-    });
+  // const handleSaveProject = async () => {
+  //   try {
+  //     // Fetch the latest projects from the backend
+  //     const updatedProjects = await getAllProjects();
+
+  //     // Check for duplicate project names
+  //     const projectExists = updatedProjects.some(
+  //       (project) =>
+  //         project.projectName.toLowerCase() ===
+  //         formData.projectName.toLowerCase()
+  //     );
+
+  //     if (projectExists) {
+  //       alert(
+  //         "A project with this name already exists. Please choose another name."
+  //       );
+  //       return;
+  //     }
+
+  //     // If no duplicate exists, proceed to create the project
+  //     const saveProjectDto = {
+  //       projectName: formData.projectName,
+  //       swaggerUrl: formData.swaggerUrl,
+  //       swaggerVersion: formData.swaggerVersion,
+  //     };
+
+  //     const newProject = await createProject(saveProjectDto);
+
+  //     // Add the new project to the state
+  //     setProjects([...projects, newProject]);
+  //     setShowForm(false);
+
+  //     // Reset the form data
+  //     setFormData({
+  //       projectName: "",
+  //       swaggerUrl: "",
+  //       swaggerVersion: "",
+  //     });
+
+  //     alert(`Project '${formData.projectName}' created successfully.`);
+  //   } catch (error) {
+  //     alert(`Error creating project: ${error.message}`);
+  //     console.error("Error creating project:", error);
+  //   }
+  // };
+
+  const handleSaveProject = async () => {
+    try {
+      // Validate input
+      if (!formData.projectName.trim()) {
+        alert("Project name cannot be empty.");
+        return;
+      }
+
+      // Fetch the latest projects from the backend
+      const updatedProjects = await getAllProjects();
+
+      // Check for duplicate project names (case-insensitive)
+      const projectExists = updatedProjects.some(
+        (project) =>
+          project.projectName.trim().toLowerCase() ===
+          formData.projectName.trim().toLowerCase()
+      );
+
+      if (projectExists) {
+        alert(
+          "A project with this name already exists. Please choose another name."
+        );
+        return;
+      }
+
+      // Prepare the payload for project creation
+      const saveProjectDto = {
+        projectName: formData.projectName.trim(),
+        swaggerUrl: formData.swaggerUrl.trim(),
+        swaggerVersion: formData.swaggerVersion.trim(),
+      };
+
+      // Create the project
+      const newProject = await createProject(saveProjectDto);
+
+      // Add the new project to the state
+      setProjects([...projects, newProject]);
+      setShowForm(false);
+
+      // Reset the form data
+      setFormData({
+        projectName: "",
+        swaggerUrl: "",
+        swaggerVersion: "",
+      });
+
+      alert(`Project '${formData.projectName}' created successfully.`);
+    } catch (error) {
+      alert(`Error creating project: ${error.message}`);
+      console.error("Error creating project:", error);
+    }
   };
 
-  // const handleCardClick = (projectId) => {
-  //   navigate(`/project/${projectId}`);
-  // };
+  const handleCardClick = (project) => {
+    setSelectedProject(project);
+  };
+
+  const closeModal = () => {
+    setSelectedProject(null);
+  };
+
+  const handleGenerateTestCases = async (projectName) => {
+    try {
+      await generateTestCases(projectName);
+      alert(`Test cases generated successfully for project: ${projectName}`);
+    } catch (error) {
+      alert(`Error generating test cases: ${error.message}`);
+    }
+  };
 
   return (
     <div className="p-8 min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 px-20 py-10">
@@ -60,7 +167,7 @@ const ProjectsPage = () => {
       <div className="flex justify-between items-center mb-10 mt-40">
         <h1 className="text-2xl font-bold text-gray-700">Projects Dashboard</h1>
         <button
-          className="bg-green-600 text-xl  font-bold text-white px-8 py-3 rounded shadow-lg hover:bg-green-700 focus:outline-none transition duration-300 transform hover:-translate-y-1"
+          className="bg-green-600 text-xl font-bold text-white px-8 py-3 rounded shadow-lg hover:bg-green-700 focus:outline-none transition duration-300 transform hover:-translate-y-1"
           onClick={handleCreateProject}
         >
           Create Project <span className="ml-2">+</span>
@@ -79,10 +186,12 @@ const ProjectsPage = () => {
       )}
 
       {/* Projects Title */}
-
       <div className="text-left mb-8 text-lg font-semibold text-gray-500">
         Your Saved Projects
       </div>
+
+      {/* Loading Indicator */}
+      {loading && <p>Loading projects...</p>}
 
       {/* Project Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -90,7 +199,7 @@ const ProjectsPage = () => {
           <div
             key={project.projectId || project.projectName}
             className="bg-white p-6 rounded-xl shadow-lg transform hover:-translate-y-2 hover:shadow-2xl transition duration-300 cursor-pointer"
-            onClick={() => handleCardClick(project.projectId)}
+            onClick={() => handleCardClick(project)}
           >
             <h3 className="text-lg font-semibold text-blue-700 mb-1">
               {project.projectName}
@@ -110,6 +219,45 @@ const ProjectsPage = () => {
           </div>
         ))}
       </div>
+
+      {/* Popup Modal for Project Details */}
+      {selectedProject && (
+        <div
+          className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50"
+          onClick={closeModal}
+        >
+          <div
+            className="bg-white w-3/4 max-w-lg p-6 rounded shadow-lg relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-bold mb-4">
+              {selectedProject.projectName}
+            </h2>
+            <p className="mb-4 text-gray-700">
+              <strong>Swagger URL:</strong> {selectedProject.swaggerUrl}
+            </p>
+            <p className="mb-4 text-gray-700">
+              <strong>Swagger Version:</strong> {selectedProject.swaggerVersion}
+            </p>
+            <div className="flex justify-between">
+              <button
+                className="bg-green-400 text-white px-4 py-2 rounded hover:bg-green-700"
+                onClick={() =>
+                  handleGenerateTestCases(selectedProject.projectName)
+                }
+              >
+                Generate Test Cases
+              </button>
+              <button
+                className="bg-red-300 text-white px-4 py-2 rounded hover:bg-red-700"
+                onClick={closeModal}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

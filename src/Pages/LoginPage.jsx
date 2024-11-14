@@ -10,7 +10,7 @@ const Login = ({ onLogin }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (email === "user@example.com" && password === "password") {
+    if (email === "SoilSoft@gmail.com" && password === "SoilSoft@ai") {
       onLogin();
       navigate("/dashboard");
     } else {
