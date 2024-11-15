@@ -61,9 +61,54 @@ export async function getAllProjects() {
 }
 
 // // Function to create saveAndGenerateTestCases
+// export async function saveAndGenerateTestCases(saveProjectDto) {
+//   try {
+//     console.log("Payload:", saveProjectDto);
+//     const res = await fetch(
+//       `${API_URL}/ApiGen/Projects/saveandgeneratetestcases`,
+//       {
+//         method: "POST",
+//         body: JSON.stringify(saveProjectDto),
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//       }
+//     );
+
+//     const contentType = res.headers.get("Content-Type");
+
+//     // Check if the response is JSON
+//     if (contentType && contentType.includes("application/json")) {
+//       const data = await res.json();
+
+//       if (data.IsProcessing) {
+//         console.warn("Test cases are still being processed:", data.Message);
+//         return data; // Return the processing response to the caller
+//       }
+
+//       if (res.ok) {
+//         return data; // Return success response
+//       } else {
+//         throw new Error(
+//           data.Message || "Failed to save and generate test cases"
+//         );
+//       }
+//     } else {
+//       // Handle non-JSON responses
+//       const text = await res.json();
+//       console.warn("Unexpected response format:", text);
+//       throw new Error(`Unexpected response from server: ${text}`);
+//     }
+//   } catch (err) {
+//     console.error("Error creating project:", err);
+//     throw new Error("Error creating project or generating test cases");
+//   }
+// }
+
 export async function saveAndGenerateTestCases(saveProjectDto) {
   try {
     console.log("Payload:", saveProjectDto);
+
     const res = await fetch(
       `${API_URL}/ApiGen/Projects/saveandgeneratetestcases`,
       {
@@ -77,7 +122,7 @@ export async function saveAndGenerateTestCases(saveProjectDto) {
 
     const contentType = res.headers.get("Content-Type");
 
-    // Check if the response is JSON
+    // Check for JSON responses
     if (contentType && contentType.includes("application/json")) {
       const data = await res.json();
 
@@ -87,8 +132,10 @@ export async function saveAndGenerateTestCases(saveProjectDto) {
       }
 
       if (res.ok) {
-        return data; // Return success response
+        console.log("Successful response:", data);
+        return data; // Return the success response
       } else {
+        console.error("Error response from server:", data);
         throw new Error(
           data.Message || "Failed to save and generate test cases"
         );
@@ -100,7 +147,12 @@ export async function saveAndGenerateTestCases(saveProjectDto) {
       throw new Error(`Unexpected response from server: ${text}`);
     }
   } catch (err) {
-    console.error("Error creating project:", err);
+    if (err.name === "TypeError") {
+      console.error("Network error:", err.message);
+      throw new Error("Network error. Please check your connection.");
+    }
+
+    console.error("Server or validation error:", err.message);
     throw new Error("Error creating project or generating test cases");
   }
 }
@@ -225,4 +277,181 @@ export async function fetchSwaggerInfo(baseUrl, version) {
     title: null,
     version: null,
   };
+}
+
+// Function to Execute the testcases for a project
+// export async function RunallTestCases(projectName) {
+//   try {
+//     const res = await fetch(
+//       `${API_URL}/TestCases/runalltestcases/${projectName}`,
+//       {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//       }
+//     );
+
+//     if (!res.ok) {
+//       let errorData = {};
+//       try {
+//         errorData = await res.json();
+//       } catch {
+//         console.error("Failed to parse error response.");
+//       }
+//       throw new Error(
+//         `Failed to execute test cases for project ID ${projectName}. Error: ${
+//           errorData.message || res.statusText || "Unknown error"
+//         }`
+//       );
+//     }
+
+//     const data = await res.json();
+//     return data;
+//   } catch (err) {
+//     console.error("Error executing test cases:", err);
+//     throw new Error(
+//       `Error executing test cases for project ID ${projectName}: ${err.message}`
+//     );
+//   }
+// }
+
+export async function RunallTestCases(projectName) {
+  const endpoint = `${API_URL}/TestCases/runalltestcases/${projectName}`;
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+  };
+
+  try {
+    // Log the request details for debugging
+    console.log("Requesting RunallTestCases:", endpoint, options);
+
+    const res = await fetch(endpoint, options);
+
+    // Check if the response is successful
+    if (!res.ok) {
+      // Try to parse error details if response has a JSON body
+      let errorData = {};
+      try {
+        errorData = await res.json();
+      } catch {
+        console.error("Failed to parse error response as JSON.");
+      }
+
+      throw new Error(
+        `Failed to execute test cases for project '${projectName}'. ` +
+          `Error: ${errorData.message || res.statusText || "Unknown error"}`
+      );
+    }
+
+    // Attempt to parse the response as JSON
+    const contentType = res.headers.get("Content-Type");
+    if (contentType && contentType.includes("application/json")) {
+      const data = await res.json();
+      console.log("Test cases executed successfully:", data);
+      return data;
+    } else {
+      const text = await res.text();
+      console.warn("Received non-JSON response:", text);
+      throw new Error("Unexpected response format from the server.");
+    }
+  } catch (err) {
+    // Log and rethrow the error with additional context
+    console.error("Error executing test cases:", err);
+    throw new Error(
+      `Error executing test cases for project '${projectName}': ${err.message}`
+    );
+  }
+}
+
+// Fetch a specific test run by project ID
+// export async function getTestRunByProjectName(projectName) {
+//   try {
+//     const res = await fetch(`${API_URL}/${projectName}/TestCases/gettestrun`, {
+//       method: "GET",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//     });
+
+//     if (!res.ok) {
+//       const errorResponse = await res.json();
+//       console.error("Error fetching test run by project ID:", errorResponse);
+//       throw new Error(errorResponse.message || "Failed to fetch test run");
+//     }
+
+//     const data = await res.json();
+//     console.log("Test run data fetched successfully:", data);
+//     return data;
+//   } catch (error) {
+//     console.error("Error in getTestRunByProjectId:", error.message);
+//     throw error;
+//   }
+// }
+
+export async function getTestRunByProjectName(projectName) {
+  try {
+    const res = await fetch(`${API_URL}/TestCases/${projectName}/gettestruns`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      const errorResponse = await res.text(); // Fallback to plain text if JSON parsing fails
+      console.error("Error fetching test run by project name:", errorResponse);
+      throw new Error(errorResponse || "Failed to fetch test run");
+    }
+
+    const contentType = res.headers.get("Content-Type");
+    if (contentType && contentType.includes("application/json")) {
+      const data = await res.json();
+      console.log("Test run data fetched successfully:", data);
+      return data;
+    } else {
+      const textData = await res.text();
+      console.error("Unexpected response format:", textData);
+      throw new Error("Server returned unexpected response format");
+    }
+  } catch (error) {
+    console.error("Error in getTestRunByProjectName:", error.message);
+    throw error;
+  }
+}
+
+// Fetch all test runs
+export async function getAllTestRuns() {
+  try {
+    const res = await fetch(`${API_URL}/TestCases/alltestruns`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      const errorResponse = await res.json();
+      console.error("Error fetching all test runs:", errorResponse);
+      throw new Error(errorResponse.message || "Failed to fetch all test runs");
+    }
+
+    const contentType = res.headers.get("Content-Type");
+    if (contentType && contentType.includes("application/json")) {
+      const data = await res.json();
+      console.log("All test runs fetched successfully:", data);
+      return data;
+    } else {
+      const textData = await res.text();
+      console.error("Unexpected response format:", textData);
+      throw new Error("Server returned unexpected response format");
+    }
+  } catch (error) {
+    console.error("Error in getAllTestRuns:", error.message);
+    throw error;
+  }
 }
