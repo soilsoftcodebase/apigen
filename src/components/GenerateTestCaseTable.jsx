@@ -400,12 +400,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useTable, useSortBy, usePagination } from "react-table";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
-import {
-  getTestCases,
-  getAllProjects,
-  RunallTestCases,
-  getTestsByProjectName,
-} from "../Services/apiGenServices";
+import { getTestCases, getAllProjects, RunallTestCases } from "../Services/apiGenServices";
 
 const TestCasesTable = () => {
   const [testCases, setTestCases] = useState([]);
@@ -601,7 +596,7 @@ const TestCasesTable = () => {
       const response = await RunallTestCases(selectedProject, testCaseIds);
 
       alert(
-        `All test cases executed successfully. Response: ${JSON.stringify(
+        `All test cases execution started successfully. Response: ${JSON.stringify(
           response
         )}`
       );
@@ -702,13 +697,8 @@ const TestCasesTable = () => {
           </button>
         </div>
       </div>
-      {isProcessing && (
-        <div className="flex justify-center items-center py-10">
-          <div className="loader border-t-4 border-b-4 border-green-300 w-12 h-12 rounded-full animate-spin"></div>
-          <span className="ml-4 text-green-700">Generating Test Cases ...</span>
-        </div>
-      )}
-      {loading && (
+
+      {loading ? (
         <div className="flex justify-center items-center py-10">
           <div className="loader border-t-4 border-b-4 border-blue-500 w-12 h-12 rounded-full animate-spin"></div>
           <span className="ml-4 text-blue-700">Loading test cases...</span>
@@ -768,6 +758,7 @@ const TestCasesTable = () => {
           </div>
         </div>
       )}
+
       {/* Payload Modal */}
       {selectedPayload && (
         <div
