@@ -25,7 +25,7 @@ const RunTestCaseTable = ({ testData }) => {
       setRuns(runsResponse || []);
       setFilteredRunData(runs);
     } catch (err) {
-      setError("Failed to fetch data. Please try again later.");
+      console.log("Failed to fetch data. Please try again later.", err);
     } finally {
       setIsLoading(false);
     }

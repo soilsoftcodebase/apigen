@@ -400,7 +400,12 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useTable, useSortBy, usePagination } from "react-table";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
-import { getTestCases, getAllProjects, RunallTestCases } from "../Services/apiGenServices";
+import {
+  getTestCases,
+  getAllProjects,
+  RunallTestCases,
+  getTestsByProjectName,
+} from "../Services/apiGenServices";
 
 const TestCasesTable = () => {
   const [testCases, setTestCases] = useState([]);
@@ -485,7 +490,7 @@ const TestCasesTable = () => {
       setTestCases(data.testCases || []);
       setTotalPages(data.totalPages || 1);
     } catch (error) {
-      //setError("Failed to load test cases. Please try again later.", error);
+      console.log("Failed to load test cases. Please try again later.", error);
     } finally {
       setLoading(false);
     }
@@ -498,12 +503,13 @@ const TestCasesTable = () => {
       const data = await getTestsByProjectName(selectedProject);
 
       // Set loading based on the isProcessing state
-      setIsProcessing(data.isProcessing);
+      setLoading(data.isProcessing);
 
       if (!data.isProcessing) {
         // Fetch test cases only if not processing
         await fetchTestCases();
       } else {
+        setIsProcessing(data.isProcessing);
         // Retry checking the project status after 2 minutes
         setTimeout(getProjectStatus, 120000);
       }
@@ -512,7 +518,7 @@ const TestCasesTable = () => {
         "Failed to load project status. Please try again later.",
         error
       );
-      setIsProcessing(false); // Stop loading in case of error
+      setLoading(false); // Stop loading in case of error
     }
   }, [selectedProject, fetchTestCases]);
 
@@ -697,58 +703,74 @@ const TestCasesTable = () => {
           </button>
         </div>
       </div>
-
       {loading ? (
         <div className="flex justify-center items-center py-10">
-          <div className="loader border-t-4 border-b-4 border-blue-500 w-12 h-12 rounded-full animate-spin"></div>
-          <span className="ml-4 text-blue-700">Loading test cases...</span>
+          <div className="space-y-4">
+            <div
+              className={`loader border-t-4 border-b-4 mx-auto ${
+                isProcessing ? "border-green-500" : " border-blue-500"
+              } w-12 h-12 rounded-full animate-spin`}
+            ></div>
+            <div
+              className={`ml-4 ${
+                isProcessing ? "text-green-600" : " text-blue-700"
+              }`}
+            >
+              {`${
+                isProcessing
+                  ? "Sit and Relax your testcases are generating"
+                  : " Loading test cases.."
+              }`}
+            </div>
+          </div>
         </div>
-      )}
-      <div className="overflow-x-auto">
-        <table
-          {...getTableProps()}
-          className="table-auto w-full border-collapse border border-gray-400 shadow-md rounded-lg"
-        >
-          <thead className="bg-black text-white">
-            {headerGroups.map((headerGroup) => (
-              <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
-                {headerGroup.headers.map((column) => (
-                  <th
-                    {...column.getHeaderProps(column.getSortByToggleProps())}
-                    className="p-2 border border-gray-400 font-bold text-center"
-                    key={column.id}
-                  >
-                    {column.render("Header")}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody {...getTableBodyProps()} className="bg-white">
-            {rows.map((row) => {
-              prepareRow(row);
-              return (
-                <tr
-                  {...row.getRowProps()}
-                  className="hover:bg-gray-200"
-                  key={row.getRowProps().key}
-                >
-                  {row.cells.map((cell) => (
-                    <td
-                      key={cell.getCellProps().key}
-                      {...cell.getCellProps()}
-                      className="p-2 font-medium border border-gray-300 text-center"
+      ) : (
+        <div className="overflow-x-auto">
+          <table
+            {...getTableProps()}
+            className="table-auto w-full border-collapse border border-gray-400 shadow-md rounded-lg"
+          >
+            <thead className="bg-black text-white">
+              {headerGroups.map((headerGroup) => (
+                <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
+                  {headerGroup.headers.map((column) => (
+                    <th
+                      {...column.getHeaderProps(column.getSortByToggleProps())}
+                      className="p-2 border border-gray-400 font-bold text-center"
+                      key={column.id}
                     >
-                      {cell.render("Cell")}
-                    </td>
+                      {column.render("Header")}
+                    </th>
                   ))}
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+              ))}
+            </thead>
+            <tbody {...getTableBodyProps()} className="bg-white">
+              {rows.map((row) => {
+                prepareRow(row);
+                return (
+                  <tr
+                    {...row.getRowProps()}
+                    className="hover:bg-gray-200"
+                    key={row.getRowProps().key}
+                  >
+                    {row.cells.map((cell) => (
+                      <td
+                        key={cell.getCellProps().key}
+                        {...cell.getCellProps()}
+                        className="p-2 font-medium border border-gray-300 text-center"
+                      >
+                        {cell.render("Cell")}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
+
       {/* Loader Popup */}
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -759,6 +781,46 @@ const TestCasesTable = () => {
         </div>
       )}
 
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center mt-4">
+          <div className="flex items-center space-x-2">
+            <button
+              className="p-2 bg-gray-300 rounded hover:bg-gray-400"
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+            >
+              First
+            </button>
+            <button
+              className="p-2 bg-gray-300 rounded hover:bg-gray-400"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            <span className="px-4 text-gray-700 font-medium">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              className="p-2 bg-gray-300 rounded hover:bg-gray-400"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+            <button
+              className="p-2 bg-gray-300 rounded hover:bg-gray-400"
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              Last
+            </button>
+          </div>
+        </div>
+      )}
       {/* Payload Modal */}
       {selectedPayload && (
         <div
