@@ -670,7 +670,7 @@ const TestCasesTable = () => {
     useTable({ columns, data: testCases }, useSortBy, usePagination);
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto min-h-svh">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
         <select
           value={selectedProject || ""}
@@ -703,7 +703,7 @@ const TestCasesTable = () => {
           </button>
         </div>
       </div>
-      {loading ? (
+      {loading && (
         <div className="flex justify-center items-center py-10">
           <div className="space-y-4">
             <div
@@ -724,7 +724,8 @@ const TestCasesTable = () => {
             </div>
           </div>
         </div>
-      ) : (
+      )}
+      {testCases.length > 0 && (
         <div className="overflow-x-auto">
           <table
             {...getTableProps()}
@@ -770,7 +771,6 @@ const TestCasesTable = () => {
           </table>
         </div>
       )}
-
       {/* Loader Popup */}
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -780,7 +780,6 @@ const TestCasesTable = () => {
           </div>
         </div>
       )}
-
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center mt-4">
