@@ -197,6 +197,30 @@ export async function getTestCases(projectName, pageNumber) {
   }
 }
 
+export async function getTestsByProjectName(projectName) {
+  try {
+    const res = await fetch(
+      `${API_URL}/ApiGen/Projects/${projectName}/getteststatus
+`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // Use 'include' if you need to send cookies or auth headers
+      }
+    );
+    console.log(res.json);
+    if (!res.ok)
+      throw Error(`Couldn't retrieve test cases for project: ${projectName}`);
+
+    const data = await res.json();
+
+    return data;
+  } catch (err) {
+    throw Error("Error retrieving test cases", err);
+  }
+}
 // Function to get test data for a specific project
 export async function getTestData(projectName) {
   try {
@@ -427,7 +451,7 @@ export async function getTestRunByProjectName(projectName) {
 // Fetch all test runs
 export async function getAllTestRuns() {
   try {
-    const res = await fetch(`${API_URL}/TestCases/alltestruns`, {
+    const res = await fetch(`${API_URL}/TestCases/getalltestruns`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

@@ -396,18 +396,23 @@
 
 // export default TestCasesTable;
 
-
 import React, { useState, useEffect, useCallback } from "react";
 import { useTable, useSortBy, usePagination } from "react-table";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
-import { getTestCases, getAllProjects, RunallTestCases } from "../Services/apiGenServices";
+import {
+  getTestCases,
+  getAllProjects,
+  RunallTestCases,
+  getTestsByProjectName,
+} from "../Services/apiGenServices";
 
 const TestCasesTable = () => {
   const [testCases, setTestCases] = useState([]);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  //const [error, setError] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -424,7 +429,7 @@ const TestCasesTable = () => {
         const projects = await getAllProjects();
         setProjects(projects || []);
       } catch (error) {
-        setError("Failed to load projects. Please try again later.");
+        console.log("Failed to load projects. Please try again later.", error);
       } finally {
         setLoading(false);
       }
@@ -433,33 +438,92 @@ const TestCasesTable = () => {
   }, []);
 
   // Fetch test cases based on the selected project
+  // const fetchTestCases = useCallback(async () => {
+  //   if (!selectedProject) return;
+
+  //   setLoading(true);
+  //   try {
+  //     const data = await getTestCases(selectedProject, currentPage);
+
+  //     if (data.isProcessing) {
+  //       setError(
+  //         `Test cases for project "${selectedProject}" are still being processed. Retrying in 2 minutes...`
+  //       );
+  //       setTimeout(fetchTestCases, 120000); // Retry after 2 minutes
+  //     } else {
+  //       setTestCases(data.testCases || []);
+  //       setTotalPages(data.totalPages || 1);
+  //       setError(null); // Clear any existing error
+  //     }
+  //   } catch (error) {
+  //     setError("Failed to load test cases. Please try again later.", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, [selectedProject, currentPage]);
+
+  // const getProjectStatus = useCallback(async () => {
+  //   if (!selectedProject) return;
+  //   try {
+  //     const data = await getTestsByProjectName(selectedProject);
+
+  //     if (data.isProcessing) {
+  //       setLoading(data.isProcessing);
+  //     } else {
+  //       setLoading(false);
+  //     }
+  //   } catch (error) {
+  //     setError("Failed to load test cases. Please try again later.", error);
+  //   }
+  // }, [selectedProject]);
+
+  // useEffect(() => {
+  //   fetchTestCases();
+  //   getProjectStatus();
+  // }, [fetchTestCases, getProjectStatus]);
+
   const fetchTestCases = useCallback(async () => {
     if (!selectedProject) return;
-
     setLoading(true);
     try {
       const data = await getTestCases(selectedProject, currentPage);
-
-      if (data.isProcessing) {
-        setError(
-          `Test cases for project "${selectedProject}" are still being processed. Retrying in 2 minutes...`
-        );
-        setTimeout(fetchTestCases, 120000); // Retry after 2 minutes
-      } else {
-        setTestCases(data.testCases || []);
-        setTotalPages(data.totalPages || 1);
-        setError(null); // Clear any existing error
-      }
+      setTestCases(data.testCases || []);
+      setTotalPages(data.totalPages || 1);
     } catch (error) {
-      setError("Failed to load test cases. Please try again later.");
+      //setError("Failed to load test cases. Please try again later.", error);
     } finally {
       setLoading(false);
     }
   }, [selectedProject, currentPage]);
 
+  const getProjectStatus = useCallback(async () => {
+    if (!selectedProject) return;
+
+    try {
+      const data = await getTestsByProjectName(selectedProject);
+
+      // Set loading based on the isProcessing state
+      setIsProcessing(data.isProcessing);
+
+      if (!data.isProcessing) {
+        // Fetch test cases only if not processing
+        await fetchTestCases();
+      } else {
+        // Retry checking the project status after 2 minutes
+        setTimeout(getProjectStatus, 120000);
+      }
+    } catch (error) {
+      console.log(
+        "Failed to load project status. Please try again later.",
+        error
+      );
+      setIsProcessing(false); // Stop loading in case of error
+    }
+  }, [selectedProject, fetchTestCases]);
+
   useEffect(() => {
-    fetchTestCases();
-  }, [fetchTestCases]);
+    getProjectStatus();
+  }, [getProjectStatus]);
 
   // Handle project change in dropdown
   const handleProjectChange = (e) => {
@@ -638,54 +702,63 @@ const TestCasesTable = () => {
           </button>
         </div>
       </div>
-
-      {loading ? (
+      {isProcessing && (
+        <div className="flex justify-center items-center py-10">
+          <div className="loader border-t-4 border-b-4 border-green-300 w-12 h-12 rounded-full animate-spin"></div>
+          <span className="ml-4 text-green-700">Generating Test Cases ...</span>
+        </div>
+      )}
+      {loading && (
         <div className="flex justify-center items-center py-10">
           <div className="loader border-t-4 border-b-4 border-blue-500 w-12 h-12 rounded-full animate-spin"></div>
           <span className="ml-4 text-blue-700">Loading test cases...</span>
         </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table
-            {...getTableProps()}
-            className="table-auto w-full border-collapse border border-gray-400 shadow-md rounded-lg"
-          >
-            <thead className="bg-black text-white">
-              {headerGroups.map((headerGroup) => (
-                <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
-                  {headerGroup.headers.map((column) => (
-                    <th
-                      {...column.getHeaderProps(column.getSortByToggleProps())}
-                      className="p-2 border border-gray-400 font-bold text-center"
-                      key={column.id}
+      )}
+      <div className="overflow-x-auto">
+        <table
+          {...getTableProps()}
+          className="table-auto w-full border-collapse border border-gray-400 shadow-md rounded-lg"
+        >
+          <thead className="bg-black text-white">
+            {headerGroups.map((headerGroup) => (
+              <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
+                {headerGroup.headers.map((column) => (
+                  <th
+                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                    className="p-2 border border-gray-400 font-bold text-center"
+                    key={column.id}
+                  >
+                    {column.render("Header")}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody {...getTableBodyProps()} className="bg-white">
+            {rows.map((row) => {
+              prepareRow(row);
+              return (
+                <tr
+                  {...row.getRowProps()}
+                  className="hover:bg-gray-200"
+                  key={row.getRowProps().key}
+                >
+                  {row.cells.map((cell) => (
+                    <td
+                      key={cell.getCellProps().key}
+                      {...cell.getCellProps()}
+                      className="p-2 font-medium border border-gray-300 text-center"
                     >
-                      {column.render("Header")}
-                    </th>
+                      {cell.render("Cell")}
+                    </td>
                   ))}
                 </tr>
-              ))}
-            </thead>
-            <tbody {...getTableBodyProps()} className="bg-white">
-              {rows.map((row) => {
-                prepareRow(row);
-                return (
-                  <tr {...row.getRowProps()} className="hover:bg-gray-200">
-                    {row.cells.map((cell) => (
-                      <td
-                        {...cell.getCellProps()}
-                        className="p-2 font-medium border border-gray-300 text-center"
-                      >
-                        {cell.render("Cell")}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
       )}
-
       {/* Loader Popup */}
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -695,7 +768,6 @@ const TestCasesTable = () => {
           </div>
         </div>
       )}
-
       {/* Payload Modal */}
       {selectedPayload && (
         <div

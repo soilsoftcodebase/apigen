@@ -77,7 +77,7 @@ const PopupForm = ({
       if (response.IsProcessing) {
         setMessage(response.Message || "Test cases are being processed...");
       } else {
-        setMessage("Project saved and test cases generated successfully!");
+        setMessage("Project saved and test case generation started...!");
         setTimeout(() => {
           onClose();
           navigate("/tests");
