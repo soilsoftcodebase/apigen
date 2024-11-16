@@ -9,18 +9,23 @@ const Header = ({ caption, onLogout }) => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   return (
-    <header
-      className="fixed top-6 left-72 w-full flex  z-50 bg-gradient-to-r from-cyan-950 to-sky-900 shadow-lg rounded-2xl mb"
-      style={{ height: "100px" }}
+    <div
+      className="fixed bg-gradient-to-br from-gray-50 to-gray-100 w-full flex z-50"
+      style={{ height: "125px" }}
     >
-      <div className="rounded-xl px-8 py-4 w-full max-w-8xl flex items-center">
-        <img src={logo} alt="APIGEN Logo" className="h-20 justify-start" />
-        <img src={line2} alt="Line" className="h-4 mr-4 justify-start" />
-        <span className="text-white text-4xl font-semibold justify-end ">
-          Advanced API Test Generator and Executor
-        </span>
-      </div>
-    </header>
+      <header
+        className="fixed top-6 ml-8 w-full flex z-50 bg-gradient-to-r from-cyan-950 to-sky-900 shadow-lg rounded-2xl mb"
+        style={{ height: "100px" }}
+      >
+        <div className="rounded-xl px-8 py-4 w-full max-w-8xl flex items-center">
+          <img src={logo} alt="APIGEN Logo" className="h-20 justify-start" />
+          <img src={line2} alt="Line" className="h-4 mr-4 justify-start" />
+          <span className="text-white text-4xl font-semibold justify-end ">
+            Advanced API Test Generator and Executor
+          </span>
+        </div>
+      </header>
+    </div>
   );
 };
 

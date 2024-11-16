@@ -396,12 +396,15 @@
 
 // export default TestCasesTable;
 
-
 import React, { useState, useEffect, useCallback } from "react";
 import { useTable, useSortBy, usePagination } from "react-table";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
-import { getTestCases, getAllProjects, RunallTestCases } from "../Services/apiGenServices";
+import {
+  getTestCases,
+  getAllProjects,
+  RunallTestCases,
+} from "../Services/apiGenServices";
 
 const TestCasesTable = () => {
   const [testCases, setTestCases] = useState([]);
@@ -537,7 +540,7 @@ const TestCasesTable = () => {
       const response = await RunallTestCases(selectedProject, testCaseIds);
 
       alert(
-        `All test cases executed successfully. Response: ${JSON.stringify(
+        `All test cases execution started successfully. Response: ${JSON.stringify(
           response
         )}`
       );
@@ -639,6 +642,18 @@ const TestCasesTable = () => {
         </div>
       </div>
 
+      {error && (
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-4">
+          <span>{error}</span>
+          <button
+            className="absolute top-0 right-0 px-4 py-3"
+            onClick={() => setError(null)}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       {loading ? (
         <div className="flex justify-center items-center py-10">
           <div className="loader border-t-4 border-b-4 border-blue-500 w-12 h-12 rounded-full animate-spin"></div>
@@ -695,6 +710,45 @@ const TestCasesTable = () => {
           </div>
         </div>
       )}
+
+      {/* Pagination */}
+      <div className="flex justify-center items-center mt-4">
+        <div className="flex items-center space-x-2">
+          <button
+            className="p-2 bg-gray-300 rounded hover:bg-gray-400"
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+          >
+            First
+          </button>
+          <button
+            className="p-2 bg-gray-300 rounded hover:bg-gray-400"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          <span className="px-4 text-gray-700 font-medium">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            className="p-2 bg-gray-300 rounded hover:bg-gray-400"
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+          <button
+            className="p-2 bg-gray-300 rounded hover:bg-gray-400"
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+          >
+            Last
+          </button>
+        </div>
+      </div>
 
       {/* Payload Modal */}
       {selectedPayload && (
