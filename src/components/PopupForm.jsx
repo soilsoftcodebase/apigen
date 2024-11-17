@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   createProject,
-  getTestCases,
   saveAndGenerateTestCases,
   fetchSwaggerInfo,
 } from "../Services/apiGenServices";
