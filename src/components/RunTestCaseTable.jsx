@@ -89,23 +89,8 @@ const RunTestCaseTable = ({ testData }) => {
     }
   };
 
-  const getStatusClass = (status) => {
-    switch (status) {
-      case "Passed":
-        return "text-green-500 font-bold";
-      case "Failed":
-        return "text-red-500 font-bold";
-      case "Skipped":
-        return "text-yellow-500 font-bold";
-      case "Blocked":
-        return "text-gray-500 font-bold";
-      default:
-        return "text-black";
-    }
-  };
-
   return (
-    <div className="container mx-auto p-4 max-w-full">
+    <div className="container mx-auto p-2 max-w-full">
       <h1 className="text-2xl font-bold mb-6 text-start">Run Test Cases</h1>
 
       {/* Project Selection Dropdown */}
@@ -170,46 +155,52 @@ const RunTestCaseTable = ({ testData }) => {
                   <td className="p-3 text-center border-r border-gray-200">
                     {expandedRows[run.testRunId] ? "▲" : "▼"}
                   </td>
-                  <td className="p-3 text-center border-r border-gray-200">
+                  <td className="p-3 text-center font-bold border-r border-gray-200">
                     {run.testRunId}
                   </td>
-                  <td className="p-3 text-center border-r border-gray-200">
+                  <td className="p-3 text-center font-semibold border-r border-gray-200">
                     {run.projectName}
                   </td>
-                  <td className="p-3 text-center border-r border-gray-200">
+                  <td className="p-3 text-center font-bold border-r border-gray-200">
                     {run.totalTests}
                   </td>
-                  <td className="p-3 text-center text-green-600 border-r border-gray-200">
+                  <td className="p-3 text-center font-bold text-green-600 border-r border-gray-200">
                     {run.passed}
                   </td>
-                  <td className="p-3 text-center text-red-600 border-r border-gray-200">
+                  <td className="p-3 text-center font-bold text-red-600 border-r border-gray-200">
                     {run.failed}
                   </td>
-                  <td className="p-3 text-center text-blue-600 border-r border-gray-200">
+                  <td className="p-3 text-center font-bold text-blue-600 border-r border-gray-200">
                     {run.blocked}
                   </td>
-                  <td className="p-3 text-center">{run.skipped}</td>
+                  <td className="p-3 font-bold text-center">{run.skipped}</td>
                 </tr>
                 {expandedRows[run.testRunId] && (
                   <tr>
-                    <td colSpan="8" className="p-4 bg-gray-50">
+                    <td colSpan="8" className="p-2 bg-gray-50">
                       <div className="overflow-auto rounded-lg shadow-inner bg-white">
                         <table className="min-w-full bg-white border border-gray-300">
                           <thead className="bg-gray-700 text-white">
                             <tr>
-                              <th className="p-3 text-center border-r border-gray-300">
+                              <th className="p-2 text-center border-r border-gray-300">
                                 Test ID
                               </th>
-                              <th className="p-3 text-center border-r border-gray-300">
+                              <th className="p-2 text-center border-r border-gray-300">
                                 Input Request URL
                               </th>
-                              <th className="p-3 text-center border-r border-gray-300">
+                              <th className="p-2 text-center border-r border-gray-300">
+                                Method
+                              </th>
+                              <th className="p-2 text-center border-r border-gray-300">
                                 Payload
                               </th>
-                              <th className="p-3 text-center border-r border-gray-300">
+                              <th className="p-2 text-center border-r border-gray-300">
                                 Actual Response
                               </th>
-                              <th className="p-3 text-center">Status</th>
+                              <th className="p-2 text-center border-r border-gray-300">
+                                Response
+                              </th>
+                              <th className="p-2 text-center">Status</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -238,10 +229,12 @@ const RunTestCaseTable = ({ testData }) => {
                               return (
                                 <tr
                                   key={test.testCaseId}
-                                  className="hover:bg-gray-50 border-b border-gray-200"
+                                  className={`hover:bg-gray-50 border-b text-black border-gray-300 ${getStatusStyle(
+                                    test.status
+                                  )}`}
                                 >
                                   {/* Test Case ID */}
-                                  <td className="p-3 text-center border-r border-gray-200">
+                                  <td className="p-2 font-bold text-center border-r border-gray-300">
                                     <span
                                       title={`Test Case ID: ${test.testCaseId}`}
                                     >
@@ -250,7 +243,7 @@ const RunTestCaseTable = ({ testData }) => {
                                   </td>
 
                                   {/* Input URL */}
-                                  <td className="p-3 text-center border-r border-gray-200">
+                                  <td className="p-2 text-center border-r border-gray-300">
                                     <div className="flex justify-center items-center space-x-2">
                                       <span
                                         onClick={() =>
@@ -277,8 +270,15 @@ const RunTestCaseTable = ({ testData }) => {
                                     </div>
                                   </td>
 
+                                  {/* Method */}
+                                  <td className="p-2 text-center border-r border-gray-300">
+                                    <span title={`Method: ${test.method}`}>
+                                      {test.method}
+                                    </span>
+                                  </td>
+
                                   {/* Payload */}
-                                  <td className="p-3 text-center border-r border-gray-200">
+                                  <td className="p-2 text-center border-r border-gray-300">
                                     <div className="flex justify-center items-center space-x-2">
                                       <span
                                         onClick={() =>
@@ -307,8 +307,8 @@ const RunTestCaseTable = ({ testData }) => {
                                     </div>
                                   </td>
 
-                                  {/* Response Code */}
-                                  <td className="p-3 text-center border-r border-gray-200">
+                                  {/* Actual Response Code */}
+                                  <td className="p-2 text-center border-r border-gray-300">
                                     <span
                                       title={`Response Code: ${
                                         test.actualResponseCode || "N/A"
@@ -318,12 +318,19 @@ const RunTestCaseTable = ({ testData }) => {
                                     </span>
                                   </td>
 
+                                  {/* Response Code */}
+                                  <td className="p-2 text-center border-r border-gray-300">
+                                    <span
+                                      title={`Response Code: ${
+                                        test.Response || "N/A"
+                                      }`}
+                                    >
+                                      {test.Response || "N/A"}
+                                    </span>
+                                  </td>
+
                                   {/* Status */}
-                                  <td
-                                    className={`p-3 text-center font-semibold ${getStatusStyle(
-                                      test.status
-                                    )}`}
-                                  >
+                                  <td className="p-2 text-center font-semibold">
                                     <span title={`Status: ${test.status}`}>
                                       {test.status}
                                     </span>
