@@ -20,6 +20,7 @@ import SavedProjects from "./components/YourProjects";
 import PopupForm from "./components/PopupForm";
 import GenerateTestCaseTable from "./components/GenerateTestCaseTable";
 import TestData from "./Pages/TestData";
+import PerformanceTestForm from "./components/PerformanceTestsForm";
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -108,6 +109,10 @@ const App = () => {
             <Route
               path="/runs"
               element={isAuthenticated ? <Runs /> : <Navigate to="/" />}
+            />
+            <Route
+              path="/performance-tests"
+              element={isAuthenticated ? <PerformanceTestForm /> : <Navigate to="/" />}
             />
             <Route
               path="/GenerateTestCaseTable"

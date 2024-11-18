@@ -10,6 +10,7 @@ import {
   FaCog,
   FaUser,
   FaSignOutAlt,
+  FaTachometerAlt, // Importing a new icon for "Performance Tests"
 } from "react-icons/fa";
 
 const SidebarComponent = ({ onLogout }) => {
@@ -27,6 +28,7 @@ const SidebarComponent = ({ onLogout }) => {
     { name: "Tests", path: "/tests", icon: <FaVial /> },
     { name: "Test Data", path: "/testdata", icon: <FaDatabase /> },
     { name: "Runs", path: "/runs", icon: <FaPlay /> },
+    { name: "Performance Tests", path: "/performance-tests", icon: <FaTachometerAlt /> }, // New menu item
     { name: "Settings", path: "/settings", icon: <FaCog /> },
   ];
 
