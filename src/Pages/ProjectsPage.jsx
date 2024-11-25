@@ -45,52 +45,6 @@ const ProjectsPage = () => {
     setShowForm(true);
   };
 
-  // const handleSaveProject = async () => {
-  //   try {
-  //     // Fetch the latest projects from the backend
-  //     const updatedProjects = await getAllProjects();
-
-  //     // Check for duplicate project names
-  //     const projectExists = updatedProjects.some(
-  //       (project) =>
-  //         project.projectName.toLowerCase() ===
-  //         formData.projectName.toLowerCase()
-  //     );
-
-  //     if (projectExists) {
-  //       alert(
-  //         "A project with this name already exists. Please choose another name."
-  //       );
-  //       return;
-  //     }
-
-  //     // If no duplicate exists, proceed to create the project
-  //     const saveProjectDto = {
-  //       projectName: formData.projectName,
-  //       swaggerUrl: formData.swaggerUrl,
-  //       swaggerVersion: formData.swaggerVersion,
-  //     };
-
-  //     const newProject = await createProject(saveProjectDto);
-
-  //     // Add the new project to the state
-  //     setProjects([...projects, newProject]);
-  //     setShowForm(false);
-
-  //     // Reset the form data
-  //     setFormData({
-  //       projectName: "",
-  //       swaggerUrl: "",
-  //       swaggerVersion: "",
-  //     });
-
-  //     alert(`Project '${formData.projectName}' created successfully.`);
-  //   } catch (error) {
-  //     alert(`Error creating project: ${error.message}`);
-  //     console.error("Error creating project:", error);
-  //   }
-  // };
-
   const handleSaveProject = async () => {
     try {
       // Validate input

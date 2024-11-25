@@ -1,4 +1,4 @@
-const API_URL = "https://localhost:7293/api";
+const API_URL = "https://localhost:7146/api";
 
 // Function to create a new project
 export async function createProject(saveProjectDto) {
@@ -477,5 +477,50 @@ export async function getAllTestRuns() {
   } catch (error) {
     console.error("Error in getAllTestRuns:", error.message);
     throw error;
+  }
+}
+
+export async function addTestCaseToProject(projectName, testCaseData) {
+  try {
+    const res = await fetch(
+      `${API_URL}/ApiGen/Projects/${projectName}/addtestcase`,
+      {
+        method: "POST",
+        body: JSON.stringify(testCaseData),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Failed to add test case to project: ${projectName}`);
+    }
+
+    const data = await res.json(); // Assuming the API returns JSON
+    return data; // Return the response for further use
+  } catch (err) {
+    throw new Error("Error adding test case", err);
+  }
+}
+
+// Function to get details of a Dashboard
+export async function fetchProjectSummary() {
+  try {
+    const res = await fetch(`${API_URL}/ApiGen/Projects/summary`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch project summary");
+    }
+
+    const data = await res.json(); // Assuming the API returns JSON
+    return data; // Return the data for further processing
+  } catch (err) {
+    throw new Error("Error fetching project summary", err);
   }
 }
