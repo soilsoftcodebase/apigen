@@ -60,51 +60,6 @@ export async function getAllProjects() {
   }
 }
 
-// // Function to create saveAndGenerateTestCases
-// export async function saveAndGenerateTestCases(saveProjectDto) {
-//   try {
-//     console.log("Payload:", saveProjectDto);
-//     const res = await fetch(
-//       `${API_URL}/ApiGen/Projects/saveandgeneratetestcases`,
-//       {
-//         method: "POST",
-//         body: JSON.stringify(saveProjectDto),
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//       }
-//     );
-
-//     const contentType = res.headers.get("Content-Type");
-
-//     // Check if the response is JSON
-//     if (contentType && contentType.includes("application/json")) {
-//       const data = await res.json();
-
-//       if (data.IsProcessing) {
-//         console.warn("Test cases are still being processed:", data.Message);
-//         return data; // Return the processing response to the caller
-//       }
-
-//       if (res.ok) {
-//         return data; // Return success response
-//       } else {
-//         throw new Error(
-//           data.Message || "Failed to save and generate test cases"
-//         );
-//       }
-//     } else {
-//       // Handle non-JSON responses
-//       const text = await res.json();
-//       console.warn("Unexpected response format:", text);
-//       throw new Error(`Unexpected response from server: ${text}`);
-//     }
-//   } catch (err) {
-//     console.error("Error creating project:", err);
-//     throw new Error("Error creating project or generating test cases");
-//   }
-// }
-
 export async function saveAndGenerateTestCases(saveProjectDto) {
   try {
     console.log("Payload:", saveProjectDto);
@@ -303,43 +258,6 @@ export async function fetchSwaggerInfo(baseUrl, version) {
   };
 }
 
-// Function to Execute the testcases for a project
-// export async function RunallTestCases(projectName) {
-//   try {
-//     const res = await fetch(
-//       `${API_URL}/TestCases/runalltestcases/${projectName}`,
-//       {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//       }
-//     );
-
-//     if (!res.ok) {
-//       let errorData = {};
-//       try {
-//         errorData = await res.json();
-//       } catch {
-//         console.error("Failed to parse error response.");
-//       }
-//       throw new Error(
-//         `Failed to execute test cases for project ID ${projectName}. Error: ${
-//           errorData.message || res.statusText || "Unknown error"
-//         }`
-//       );
-//     }
-
-//     const data = await res.json();
-//     return data;
-//   } catch (err) {
-//     console.error("Error executing test cases:", err);
-//     throw new Error(
-//       `Error executing test cases for project ID ${projectName}: ${err.message}`
-//     );
-//   }
-// }
-
 export async function RunallTestCases(projectName) {
   const endpoint = `${API_URL}/TestCases/runalltestcases/${projectName}`;
   const options = {
@@ -393,30 +311,6 @@ export async function RunallTestCases(projectName) {
 }
 
 // Fetch a specific test run by project ID
-// export async function getTestRunByProjectName(projectName) {
-//   try {
-//     const res = await fetch(`${API_URL}/${projectName}/TestCases/gettestrun`, {
-//       method: "GET",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//     });
-
-//     if (!res.ok) {
-//       const errorResponse = await res.json();
-//       console.error("Error fetching test run by project ID:", errorResponse);
-//       throw new Error(errorResponse.message || "Failed to fetch test run");
-//     }
-
-//     const data = await res.json();
-//     console.log("Test run data fetched successfully:", data);
-//     return data;
-//   } catch (error) {
-//     console.error("Error in getTestRunByProjectId:", error.message);
-//     throw error;
-//   }
-// }
-
 export async function getTestRunByProjectName(projectName) {
   try {
     const res = await fetch(`${API_URL}/TestCases/${projectName}/gettestruns`, {
@@ -480,6 +374,7 @@ export async function getAllTestRuns() {
   }
 }
 
+// Function to add testcase to Data Base
 export async function addTestCaseToProject(projectName, testCaseData) {
   try {
     const res = await fetch(

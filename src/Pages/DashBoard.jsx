@@ -22,14 +22,17 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="container mx-auto px-20 py-10 max-w-7xl bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div className="container mx-auto px-20 py-10 max-w-full bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen ">
       {/* Dashboard Title */}
-      <div className="mb-8 text-center mt-40">
-        <h2 className="text-3xl font-bold text-gray-800">Dashboard Overview</h2>
+      <div className="mb-0 text-center mt-32">
+        <h2 className="text-3xl font-bold text-sky-800 animate-fade-in ">
+          Dashboard Overview
+        </h2>
         <p className="text-gray-600 mt-2">
           Get a quick summary of your testing activity, project status, and more
           insights.
         </p>
+        <div className="w-48 h-px bg-gray-300 my-6 mx-auto" />
       </div>
 
       {loading ? (

@@ -8,6 +8,7 @@ import {
   RunallTestCases,
   getTestsByProjectName,
 } from "../Services/apiGenServices";
+import AddTestCaseForm from "./AddTestCaseForm";
 
 const TestCasesTable = () => {
   const [testCases, setTestCases] = useState([]);
@@ -15,12 +16,14 @@ const TestCasesTable = () => {
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedRows, setSelectedRows] = useState([]); // Track selected rows
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedPayload, setSelectedPayload] = useState(null);
   const [runningTests, setRunningTests] = useState(false);
   const [showPopup, setShowPopup] = useState(false); // Manage loader popup
   const navigate = useNavigate(); // Navigate to different routes
+  const [showFormPopup, setShowFormPopup] = useState(false);
 
   // Fetch all projects on component mount
   useEffect(() => {
@@ -37,6 +40,24 @@ const TestCasesTable = () => {
     };
     fetchAllProjects();
   }, []);
+
+  const handleSelectRow = (testCaseId) => {
+    setSelectedRows(
+      (prev) =>
+        prev.includes(testCaseId)
+          ? prev.filter((id) => id !== testCaseId) // Deselect if already selected
+          : [...prev, testCaseId] // Add to selected rows if not selected
+    );
+  };
+
+  const handleSelectAllRows = (isChecked) => {
+    if (isChecked) {
+      const allIds = testCases.map((testCase) => testCase.testCaseId);
+      setSelectedRows(allIds);
+    } else {
+      setSelectedRows([]);
+    }
+  };
 
   const fetchTestCases = useCallback(async () => {
     if (!selectedProject) return;
@@ -172,10 +193,41 @@ const TestCasesTable = () => {
 
   const columns = React.useMemo(
     () => [
-      { Header: "Test ID", accessor: "testCaseId" },
-      { Header: "TestCase Name", accessor: "testCaseName" },
       {
-        Header: "Input Request URL",
+        Header: (
+          <input
+            type="checkbox"
+            onChange={(e) => handleSelectAllRows(e.target.checked)}
+            checked={
+              selectedRows.length === testCases.length && testCases.length > 0
+            }
+          />
+        ),
+        accessor: "select",
+        Cell: ({ row }) => (
+          <input
+            type="checkbox"
+            checked={selectedRows.includes(row.original.testCaseId)}
+            onChange={() => handleSelectRow(row.original.testCaseId)}
+          />
+        ),
+        disableSortBy: true,
+      },
+      { Header: "Test ID", accessor: "testCaseId" },
+      {
+        Header: "TestCase Name",
+        accessor: "testCaseName",
+        Cell: ({ value }) => (
+          <div style={{ textAlign: "left", marginLeft: 10 }}>{value}</div>
+        ),
+      },
+      {
+        Header: (
+          <p>
+            Input <br />
+            Request URL
+          </p>
+        ),
         accessor: "inputRequestUrl",
         Cell: ({ value }) => (
           <button
@@ -198,7 +250,15 @@ const TestCasesTable = () => {
           </button>
         ),
       },
-      { Header: "Expected Response", accessor: "expectedResponseCode" },
+      {
+        Header: (
+          <p>
+            Expected <br />
+            Response Code
+          </p>
+        ),
+        accessor: "expectedResponseCode",
+      },
       {
         Header: "Steps",
         accessor: "steps",
@@ -214,23 +274,30 @@ const TestCasesTable = () => {
       {
         Header: "Type",
         accessor: "testType",
-        Cell: ({ value }) =>
-          value ? value.charAt(0).toUpperCase() + value.slice(1) : "",
+        Cell: ({ value }) => (
+          <div style={{ textAlign: "left" }}>
+            {value ? value.charAt(0).toUpperCase() + value.slice(1) : ""}
+          </div>
+        ),
       },
     ],
-    []
+    [selectedRows, testCases]
   );
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({ columns, data: testCases }, useSortBy, usePagination);
 
   return (
-    <div className="container mx-auto min-h-svh">
+    <div className="container mx-auto p-6 max-w-full">
+      <h1 className="text-3xl font-bold mb-6 text-start px-2 text-sky-800 animate-fade-in ">
+        Generated Test Cases
+      </h1>
+      <div className="w-full h-px bg-gray-300 my-6" />
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
         <select
           value={selectedProject || ""}
           onChange={handleProjectChange}
-          className="p-2 border rounded w-full sm:w-auto focus:ring-2 focus:ring-blue-500"
+          className="p-2 border rounded w-full sm:w-auto focus:ring-2 focus:ring-blue-500 font-semibold"
         >
           <option value="" disabled>
             {projects.length > 0 ? "Choose a project" : "No projects available"}
@@ -243,27 +310,45 @@ const TestCasesTable = () => {
         </select>
 
         <div className="flex space-x-4 mt-4 sm:mt-0">
-          <button className="bg-zinc-500 font-bold text-white rounded py-2 px-4 hover:bg-zinc-700">
+          <button
+            className="bg-zinc-500 font-bold text-white rounded py-2 px-4 hover:bg-zinc-700"
+            onClick={() => setShowFormPopup(true)}
+          >
             Add New Test Case
           </button>
           <button
-            className="bg-green-600 text-white font-bold py-2 px-4 rounded hover:bg-green-700"
+            className="bg-teal-600 text-white font-bold py-2 px-4 rounded hover:bg-teal-700"
             onClick={runAllTestCases}
             disabled={runningTests || !selectedProject}
           >
             {runningTests ? "Running..." : "Run All Test Cases"}
           </button>
           <button
-            className="bg-teal-500 text-white font-bold py-2 px-4 rounded hover:bg-teal-700"
+            className="bg-sky-500 text-white font-bold py-2 px-4 rounded hover:bg-sky-700"
             onClick={downloadAllTestCases}
           >
             Download All
           </button>
         </div>
       </div>
+      {/* Loader Popup */}
+      {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+          <div className="bg-white p-10 rounded-lg shadow-2xl transform scale-95 hover:scale-100 transition-transform duration-300 ease-out w-96 h-96 flex flex-col items-center justify-center">
+            {/* Enhanced Loader Animation */}
+            <div className="w-16 h-16 rounded-full border-t-4 border-b-4 border-transparent border-t-blue-500 border-b-purple-500 animate-spin mb-6"></div>
+
+            {/* Creative Text */}
+            <p className="text-2xl font-extrabold text-gray-700 text-center leading-relaxed">
+              🚀 Hold tight! <br />
+              Your test cases are running at warp speed!
+            </p>
+          </div>
+        </div>
+      )}
       {loading && (
         <div className="flex justify-center items-center py-10">
-          <div className="space-y-4">
+          <div className="space-y-8 mt-24">
             <div
               className={`loader border-t-4 border-b-4 mx-auto ${
                 isProcessing ? "border-green-500" : " border-blue-500"
@@ -276,7 +361,7 @@ const TestCasesTable = () => {
             >
               {`${
                 isProcessing
-                  ? "Sit and Relax your testcases are generating"
+                  ? "Sit & Relax!! -- Your testcases are generating"
                   : " Loading test cases.."
               }`}
             </div>
@@ -287,9 +372,9 @@ const TestCasesTable = () => {
         <div className="overflow-x-auto">
           <table
             {...getTableProps()}
-            className="table-auto w-full border-collapse border border-gray-400 shadow-md rounded-lg"
+            className="table-auto w-full rounded-t-lg border-collapse border border-gray-400 shadow-md rounded-lg"
           >
-            <thead className="bg-black text-white">
+            <thead className="bg-gradient-to-r from-cyan-950 to-sky-900 text-white rounded-t-lg">
               {headerGroups.map((headerGroup) => (
                 <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
                   {headerGroup.headers.map((column) => (
@@ -304,7 +389,10 @@ const TestCasesTable = () => {
                 </tr>
               ))}
             </thead>
-            <tbody {...getTableBodyProps()} className="bg-white">
+            <tbody
+              {...getTableBodyProps()}
+              className="odd:bg-gray-100 even:bg-gray-200bg-white"
+            >
               {rows.map((row) => {
                 prepareRow(row);
                 return (
@@ -329,15 +417,7 @@ const TestCasesTable = () => {
           </table>
         </div>
       )}
-      {/* Loader Popup */}
-      {showPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-md shadow-lg">
-            <div className="loader border-t-4 border-b-4 border-blue-500 w-12 h-12 rounded-full animate-spin mb-4"></div>
-            <p className="text-lg font-bold">Running test cases...</p>
-          </div>
-        </div>
-      )}
+
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center mt-4">
@@ -408,6 +488,14 @@ const TestCasesTable = () => {
             </div>
           </div>
         </div>
+      )}
+      {/* PopupForm */}
+      {showFormPopup && (
+        <AddTestCaseForm
+          selectedProject={selectedProject}
+          onClose={() => setShowFormPopup(false)}
+          onTestCaseAdded={fetchTestCases}
+        />
       )}
     </div>
   );

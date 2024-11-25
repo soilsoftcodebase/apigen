@@ -12,8 +12,8 @@ const TestDataTable = () => {
   const [testData, setTestData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  const [editRowId, setEditRowId] = useState(null); // Track the row being edited
-  const [originalData, setOriginalData] = useState(null); // Track original data for canceling
+  const [editRowId, setEditRowId] = useState(null);
+  const [originalData, setOriginalData] = useState(null);
 
   useEffect(() => {
     const fetchAllProjects = async () => {
@@ -64,7 +64,7 @@ const TestDataTable = () => {
       if (!selectedProject) return;
       await updateTestData(selectedProject, testData);
       setHasChanges(false);
-      setEditRowId(null); // Exit editing mode
+      setEditRowId(null);
     } catch (error) {
       console.error("Error updating test data:", error);
     }
@@ -72,13 +72,13 @@ const TestDataTable = () => {
 
   const handleEditClick = (testDataId) => {
     setEditRowId(testDataId);
-    // Store original data for cancel action
-    const originalItem = testData.find((item) => item.testDataId === testDataId);
+    const originalItem = testData.find(
+      (item) => item.testDataId === testDataId
+    );
     setOriginalData(originalItem);
   };
 
   const handleCancelEdit = () => {
-    // Restore original data for the row
     if (originalData) {
       setTestData((prevData) =>
         prevData.map((item) =>
@@ -86,7 +86,7 @@ const TestDataTable = () => {
         )
       );
     }
-    setEditRowId(null); // Exit editing mode without saving
+    setEditRowId(null);
     setHasChanges(false);
   };
 
@@ -100,9 +100,16 @@ const TestDataTable = () => {
 
   return (
     <div className="container mx-auto p-6 max-w-full">
+      <h1 className="text-3xl font-bold mb-6 text-start px-2 text-sky-800 animate-fade-in ">
+        Your Test Data
+      </h1>
+      <div className="w-full h-px bg-gray-300 my-6" />
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center">
-          <label htmlFor="project-select" className="mr-2 text-gray-900 text-lg font-bold">
+          <label
+            htmlFor="project-select"
+            className="mr-2 text-gray-900 text-lg font-semibold"
+          >
             Select Project:
           </label>
           <select
@@ -110,7 +117,7 @@ const TestDataTable = () => {
             name="project-select"
             value={selectedProject}
             onChange={(e) => setSelectedProject(e.target.value)}
-            className="p-2 border rounded bg-white"
+            className="p-2 border border-gray-300 rounded bg-white focus:ring focus:ring-blue-500 font-semibold text-gray-700"
           >
             <option value="">Choose a project</option>
             {projects.map((project) => (
@@ -123,27 +130,39 @@ const TestDataTable = () => {
       </div>
 
       {loading ? (
-        <div className="text-center font-bold">Loading...</div>
+        <div className="text-center font-bold text-blue-700 text-lg animate-pulse">
+          Loading...
+        </div>
       ) : testData.length > 0 ? (
-        <div className="overflow-hidden rounded-lg shadow max-w-full">
+        <div className="overflow-hidden rounded-lg shadow-lg max-w-full border border-gray-300">
           <div className="overflow-y-auto max-h-96">
-            <table className="min-w-full bg-white relative">
-              <thead className="bg-gray-800 text-white sticky top-0">
+            <table className="min-w-full bg-white">
+              <thead className="bg-gradient-to-r from-cyan-950 to-sky-900 text-white">
                 <tr>
-                  <th className="p-3 text-left pl-10">Parameter Name</th>
-                  <th className="p-3 text-left">Parameter Value</th>
-                  <th className="p-3 text-center">Edit</th>
+                  <th className="p-4 text-left border-b border-gray-300 pl-10">
+                    Parameter Name
+                  </th>
+                  <th className="p-4 text-left border-b border-gray-300">
+                    Parameter Value
+                  </th>
+                  <th className="p-4 text-center border-b border-gray-300">
+                    Edit
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {testData.map((item) => (
+                {testData.map((item, index) => (
                   <tr
                     key={item.testDataId}
-                    className="odd:bg-gray-100 even:bg-gray-200 hover:bg-gray-300">
-                    <td className="p-3 text-left font-bold pl-10">{item.parameterName}</td>
+                    className={`${
+                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    } hover:bg-gray-100 transition-colors duration-200`}
+                  >
+                    <td className="p-4 text-left border-b border-gray-300 pl-10 font-medium text-gray-800">
+                      {item.parameterName}
+                    </td>
 
-                    {/* Conditionally render input or plain text based on editRowId */}
-                    <td className="p-3 text-center">
+                    <td className="p-4 text-start border-b border-gray-300">
                       {editRowId === item.testDataId ? (
                         <input
                           type="text"
@@ -156,33 +175,33 @@ const TestDataTable = () => {
                             )
                           }
                           onKeyDown={(e) => handleKeyDown(e, item.testDataId)}
-                          className="w-full p-1 border border-gray-300 rounded text-center"
+                          className="w-full p-2 border border-gray-300 rounded text-center focus:outline-none focus:ring focus:ring-blue-500"
                         />
                       ) : (
                         item.parameterValue
                       )}
                     </td>
 
-                    <td className="p-3 text-center">
+                    <td className="p-4 text-center border-b border-gray-300">
                       {editRowId === item.testDataId ? (
-                        <>
+                        <div className="flex justify-center space-x-2">
                           <button
                             onClick={() => handleSave()}
-                            className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-3 rounded mr-2"
+                            className="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-4 rounded transition-transform transform hover:scale-105"
                           >
                             Save
                           </button>
                           <button
                             onClick={handleCancelEdit}
-                            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded"
+                            className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-4 rounded transition-transform transform hover:scale-105"
                           >
                             Cancel
                           </button>
-                        </>
+                        </div>
                       ) : (
                         <button
                           onClick={() => handleEditClick(item.testDataId)}
-                          className="bg-neutral-500 hover:bg-neutral-700 text-white font-bold py-1 px-3 rounded"
+                          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-110"
                         >
                           <FaRegEdit />
                         </button>
@@ -195,8 +214,8 @@ const TestDataTable = () => {
           </div>
         </div>
       ) : (
-        <div className="text-center mt-4 font-bold text-red-600">
-          No test data available for this project.
+        <div className="text-center mt-4 font-bold text-gray-600 text-lg">
+          Please select a project to display Test data.
         </div>
       )}
     </div>
@@ -204,268 +223,3 @@ const TestDataTable = () => {
 };
 
 export default TestDataTable;
-
-// import React, { useState, useEffect } from "react";
-
-// import { useTable, useRowSelect } from "react-table";
-
-// import { FaRegEdit } from "react-icons/fa";
-
-// import {
-//   getAllProjects,
-//   getTestData,
-//   updateTestData,
-// } from "../Services/apiGenServices";
-
-// const TestDataTable = () => {
-//   const [projects, setProjects] = useState([]);
-
-//   const [selectedProject, setSelectedProject] = useState("");
-
-//   const [testData, setTestData] = useState([]);
-
-//   const [loading, setLoading] = useState(false);
-
-//   const [hasChanges, setHasChanges] = useState(false);
-
-//   const [editRowId, setEditRowId] = useState(null); // Track the row being edited
-
-//   const [originalData, setOriginalData] = useState(null); // Track original data for canceling
-
-//   useEffect(() => {
-//     const fetchAllProjects = async () => {
-//       try {
-//         setLoading(true);
-
-//         const projects = await getAllProjects();
-
-//         setProjects(projects || []);
-//       } catch (error) {
-//         console.error("Error fetching project names:", error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchAllProjects();
-//   }, []);
-
-//   useEffect(() => {
-//     if (selectedProject) {
-//       const fetchTestData = async () => {
-//         try {
-//           setLoading(true);
-
-//           const data = await getTestData(selectedProject);
-
-//           setTestData(data || []);
-
-//           setHasChanges(false);
-//         } catch (error) {
-//           console.error("Error fetching test data:", error);
-//         } finally {
-//           setLoading(false);
-//         }
-//       };
-
-//       fetchTestData();
-//     }
-//   }, [selectedProject]);
-
-//   const handleEditChange = (rowIndex, field, value) => {
-//     setTestData((prevData) =>
-//       prevData.map((item, index) =>
-//         index === rowIndex ? { ...item, [field]: value } : item
-//       )
-//     );
-
-//     setHasChanges(true);
-//   };
-
-//   const handleSave = async () => {
-//     try {
-//       if (!selectedProject) return;
-
-//       await updateTestData(selectedProject, testData);
-
-//       setHasChanges(false);
-
-//       setEditRowId(null); // Exit editing mode
-//     } catch (error) {
-//       console.error("Error updating test data:", error);
-//     }
-//   };
-
-//   const handleEditClick = (rowIndex) => {
-//     setEditRowId(rowIndex);
-
-//     setOriginalData({ ...testData[rowIndex] }); // Store original data for cancel action
-//   };
-
-//   const handleCancelEdit = () => {
-//     // Restore original data for the row
-
-//     if (originalData) {
-//       setTestData((prevData) =>
-//         prevData.map((item, index) =>
-//           index === editRowId ? originalData : item
-//         )
-//       );
-//     }
-
-//     setEditRowId(null); // Exit editing mode without saving
-
-//     setHasChanges(false);
-//   };
-
-//   const columns = React.useMemo(
-//     () => [
-//       {
-//         Header: "Parameter Name",
-
-//         accessor: "parameterName",
-//       },
-
-//       {
-//         Header: "Parameter Value",
-
-//         accessor: "parameterValue",
-
-//         Cell: ({ row, value }) =>
-//           editRowId === row.index ? (
-//             <input
-//               type="text"
-//               value={value || ""}
-//               onChange={(e) =>
-//                 handleEditChange(row.index, "parameterValue", e.target.value)
-//               }
-//               className="w-full p-1 border border-gray-300 rounded text-center"
-//             />
-//           ) : (
-//             value
-//           ),
-//       },
-
-//       {
-//         Header: "Actions",
-
-//         Cell: ({ row }) =>
-//           editRowId === row.index ? (
-//             <>
-//               <button
-//                 onClick={handleSave}
-//                 className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-3 rounded mr-2"
-//               >
-//                 Save
-//               </button>
-
-//               <button
-//                 onClick={handleCancelEdit}
-//                 className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded"
-//               >
-//                 Cancel
-//               </button>
-//             </>
-//           ) : (
-//             <button
-//               onClick={() => handleEditClick(row.index)}
-//               className="bg-neutral-500 hover:bg-neutral-700 text-white font-bold py-1 px-3 rounded"
-//             >
-//               <FaRegEdit />
-//             </button>
-//           ),
-//       },
-//     ],
-
-//     [testData, editRowId]
-//   );
-
-//   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-//     useTable({ columns, data: testData }, useRowSelect);
-
-//   return (
-//     <div className="container mx-auto p-6 max-w-full">
-//       <div className="flex justify-between items-center mb-4">
-//         <div className="flex items-center">
-//           <label
-//             htmlFor="project-select"
-//             className="mr-2 text-gray-900 text-lg font-bold"
-//           >
-//             Select Project:
-//           </label>
-
-//           <select
-//             id="project-select"
-//             name="project-select"
-//             value={selectedProject}
-//             onChange={(e) => setSelectedProject(e.target.value)}
-//             className="p-2 border rounded bg-white"
-//           >
-//             <option value="">Choose a project</option>
-
-//             {projects.map((project, index) => (
-//               <option key={project.id || index} value={project.projectName}>
-//                 {project.projectName}
-//               </option>
-//             ))}
-//           </select>
-//         </div>
-//       </div>
-
-//       {loading ? (
-//         <div className="text-center font-bold">Loading...</div>
-//       ) : testData.length > 0 ? (
-//         <div className="overflow-hidden rounded-lg shadow max-w-full">
-//           <table
-//             {...getTableProps()}
-//             className="min-w-full bg-white border border-gray-300"
-//           >
-//             <thead className="bg-gray-800 w-1/4 text-white">
-//               {headerGroups.map((headerGroup) => (
-//                 <tr {...headerGroup.getHeaderGroupProps()}>
-//                   {headerGroup.headers.map((column) => (
-//                     <th {...column.getHeaderProps()} className="p-3 text-left">
-//                       {column.render("Header")}
-//                     </th>
-//                   ))}
-//                 </tr>
-//               ))}
-//             </thead>
-
-//             <tbody
-//               {...getTableBodyProps()}
-//               className="divide-y divide-gray-200"
-//             >
-//               {rows.map((row) => {
-//                 prepareRow(row);
-//                 return (
-//                   <tr
-//                     key={row.id}
-//                     {...row.getRowProps()}
-//                     className="hover:bg-gray-300"
-//                   >
-//                     {row.cells.map((cell) => (
-//                       <td
-//                         key={cell.column.id}
-//                         {...cell.getCellProps()}
-//                         className="p-3 text-left"
-//                       >
-//                         {cell.render("Cell")}
-//                       </td>
-//                     ))}
-//                   </tr>
-//                 );
-//               })}
-//             </tbody>
-//           </table>
-//         </div>
-//       ) : (
-//         <div className="text-center mt-4 font-bold text-red-600">
-//           No test data available for this project.
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default TestDataTable;
