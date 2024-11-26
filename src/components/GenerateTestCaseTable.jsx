@@ -408,11 +408,12 @@ const TestCasesTable = () => {
           </div>
         </div>
       )}
+
       {testCases.length > 0 && (
         <div className="overflow-x-auto">
           <table
             {...getTableProps()}
-            className="table-auto w-full rounded-t-lg border-collapse border border-gray-400 shadow-md rounded-lg"
+            className="table-auto w-full rounded-t-lg border-collapse border border-gray-400 shadow-md rounded-lg overflow-auto hide-scrollbar"
           >
             <thead className="bg-gradient-to-r from-cyan-950 to-sky-900 text-white rounded-t-lg">
               {headerGroups.map((headerGroup) => (
@@ -501,7 +502,7 @@ const TestCasesTable = () => {
       {/* Payload Modal */}
       {selectedPayload && (
         <div
-          className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50"
+          className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 overflow-auto hide-scrollbar"
           onClick={() => setSelectedPayload(null)}
         >
           <div className="bg-white p-6 rounded shadow-lg w-1/2 max-h-[90vh] overflow-auto">
@@ -537,11 +538,6 @@ const TestCasesTable = () => {
           onTestCaseAdded={fetchTestCases}
         />
       )}
-      <AddTestCaseForm
-        selectedProject={selectedProject}
-        onClose={() => setShowFormPopup(false)}
-        onTestCaseAdded={fetchTestCases}
-      />
     </div>
   );
 };

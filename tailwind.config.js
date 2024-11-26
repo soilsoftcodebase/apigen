@@ -8,9 +8,21 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Montserrat', 'sans-serif'], // Define your custom font
+        sans: ["Montserrat", "sans-serif"], // Define your custom font
+      },
+      scrollbarWidth: {
+        none: "none",
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addComponents }) {
+      addComponents({
+        ".hide-scrollbar": {
+          "-ms-overflow-style": "none" /* Internet Explorer */,
+          "scrollbar-width": "none" /* Firefox */,
+        },
+      });
+    },
+  ],
 };

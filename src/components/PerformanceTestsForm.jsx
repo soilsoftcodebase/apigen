@@ -52,7 +52,7 @@ const PerformanceTestForm = () => {
     !Object.values(errors).includes(true);
 
   return (
-    <div className="mt-32  bg-white container p-16 max-w-full mx-auto">
+    <div className="mt-32  bg-white container p-16 max-w-full mx-auto ">
       <div className="container mx-auto p-6 max-w-full">
         <h1 className="text-3xl font-bold mb-6 text-start px-2 text-sky-800 animate-fade-in ">
           Performance Tests

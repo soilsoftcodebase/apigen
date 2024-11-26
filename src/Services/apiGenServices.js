@@ -391,9 +391,7 @@ export async function addTestCaseToProject(projectName, testCaseData) {
     if (!res.ok) {
       throw new Error(`Failed to add test case to project: ${projectName}`);
     }
-
-    const data = await res.json(); // Assuming the API returns JSON
-    return data; // Return the response for further use
+    // Return the response for further use
   } catch (err) {
     throw new Error("Error adding test case", err);
   }

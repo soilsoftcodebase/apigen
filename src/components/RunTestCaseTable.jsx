@@ -106,7 +106,7 @@ const RunTestCaseTable = ({ testData }) => {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-full">
+    <div className="container mx-auto p-6 max-w-full ">
       <h1 className="text-3xl font-bold mb-6 text-start px-2 text-sky-800 animate-fade-in ">
         Executed Test Cases
       </h1>
