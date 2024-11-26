@@ -419,3 +419,32 @@ export async function fetchProjectSummary() {
     throw new Error("Error fetching project summary", err);
   }
 }
+
+export async function RunSelectedTestCase(projectName, testCaseList) {
+  const endpoint = `${API_URL}/TestCases/${projectName}/runtestcases`;
+
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      testCases: testCaseList, // testCaseList will be the array of test cases you send in the request body
+    }),
+  };
+
+  try {
+    const response = await fetch(endpoint, options);
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Request failed", error);
+    throw error;
+  }
+}
