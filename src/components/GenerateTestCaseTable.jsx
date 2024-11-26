@@ -27,6 +27,14 @@ const TestCasesTable = () => {
   const navigate = useNavigate(); // Navigate to different routes
   const [showFormPopup, setShowFormPopup] = useState(false);
 
+  const availableUrls =
+    testCases
+      .filter((testCase) => testCase.expectedResponseCode === 200) // Filter by response code 200
+      .map((testCase) => ({
+        inputRequestUrl: testCase.inputRequestUrl,
+        apiEndpointId: testCase.apiEndpointId, // Include apiEndpointId as well
+      })) || [];
+
   // Fetch all projects on component mount
   useEffect(() => {
     const fetchAllProjects = async () => {
@@ -74,6 +82,7 @@ const TestCasesTable = () => {
     try {
       const data = await getTestCases(selectedProject, currentPage);
       setTestCases(data.testCases || []);
+      // Extract inputRequestUrl
       setTotalPages(data.totalPages || 1);
     } catch (error) {
       console.log("Failed to load test cases. Please try again later.", error);
@@ -528,6 +537,12 @@ const TestCasesTable = () => {
           onTestCaseAdded={fetchTestCases}
         />
       )}
+      <AddTestCaseForm
+        selectedProject={selectedProject}
+        onClose={() => setShowFormPopup(false)}
+        onTestCaseAdded={fetchTestCases}
+        availableUrls={availableUrls}
+      />
     </div>
   );
 };

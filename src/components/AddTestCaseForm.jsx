@@ -1,7 +1,13 @@
-import React, { useState } from "react";
+/* eslint-disable react/prop-types */
+import { useState } from "react";
 import { addTestCaseToProject } from "../Services/apiGenServices";
 
-const AddTestCaseForm = ({ selectedProject, onClose, onTestCaseAdded }) => {
+const AddTestCaseForm = ({
+  selectedProject,
+  onClose,
+  onTestCaseAdded,
+  availableUrls,
+}) => {
   const [formData, setFormData] = useState({
     testCaseName: "",
     inputRequestUrl: "",
@@ -13,11 +19,32 @@ const AddTestCaseForm = ({ selectedProject, onClose, onTestCaseAdded }) => {
     apiEndpointId: "",
   });
 
+  // Handle input changes
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  // Handle URL selection change
+  const handleUrlSelect = (e) => {
+    const selectedUrl = e.target.value;
+
+    // Find the selected URL object that contains inputRequestUrl and apiEndpointId
+    const selectedUrlData = availableUrls.find(
+      (url) => url.inputRequestUrl === selectedUrl
+    );
+
+    if (selectedUrlData) {
+      // Update the formData with the selected URL and its apiEndpointId
+      setFormData({
+        ...formData,
+        inputRequestUrl: selectedUrlData.inputRequestUrl,
+        apiEndpointId: selectedUrlData.apiEndpointId, // Set apiEndpointId
+      });
+    }
+  };
+
+  // Handle form submission
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
@@ -60,14 +87,28 @@ const AddTestCaseForm = ({ selectedProject, onClose, onTestCaseAdded }) => {
             placeholder="Test Case Name"
             className="w-full p-2 border rounded"
           />
-          <input
-            type="text"
-            name="inputRequestUrl"
-            value={formData.inputRequestUrl}
-            onChange={handleFormChange}
-            placeholder="Input Request URL"
-            className="w-full p-2 border rounded"
-          />
+
+          {/* Dropdown for Input Request URL */}
+          <div>
+            <label htmlFor="inputRequestUrl" className="block font-medium">
+              Input Request URL
+            </label>
+            <select
+              name="inputRequestUrl"
+              value={formData.inputRequestUrl}
+              onChange={handleUrlSelect}
+              className="w-full p-2 border rounded"
+            >
+              <option value="">Select a URL</option>
+              {availableUrls &&
+                availableUrls.map((url, index) => (
+                  <option key={index} value={url.inputRequestUrl}>
+                    {url.inputRequestUrl}
+                  </option>
+                ))}
+            </select>
+          </div>
+
           <textarea
             name="payload"
             value={formData.payload}
@@ -106,14 +147,18 @@ const AddTestCaseForm = ({ selectedProject, onClose, onTestCaseAdded }) => {
             placeholder="Test Type"
             className="w-full p-2 border rounded"
           />
-          {/* <input
+
+          {/* The API Endpoint ID is automatically set when a URL is selected */}
+          <input
             type="text"
-            name="apiendpoindid"
+            name="apiEndpointId"
             value={formData.apiEndpointId}
             onChange={handleFormChange}
-            placeholder="ApiEndpointId"
+            placeholder="API Endpoint ID"
             className="w-full p-2 border rounded"
-          /> */}
+            disabled
+          />
+
           <div className="flex justify-end space-x-4">
             <button
               type="button"
