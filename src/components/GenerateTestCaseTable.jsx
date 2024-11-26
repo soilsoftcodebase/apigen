@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useState, useEffect, useCallback } from "react";
 import { useTable, useSortBy, usePagination } from "react-table";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +8,7 @@ import {
   getAllProjects,
   RunallTestCases,
   getTestsByProjectName,
+  RunSelectedTestCase,
 } from "../Services/apiGenServices";
 import AddTestCaseForm from "./AddTestCaseForm";
 
@@ -56,6 +58,13 @@ const TestCasesTable = () => {
       setSelectedRows(allIds);
     } else {
       setSelectedRows([]);
+    }
+  };
+  const handleRunTestCases = () => {
+    if (selectedRows.length === 0) {
+      runAllTestCases();
+    } else {
+      runSelectedTestCases();
     }
   };
 
@@ -191,6 +200,24 @@ const TestCasesTable = () => {
     }
   };
 
+  const runSelectedTestCases = async () => {
+    if (!selectedProject || selectedRows.length === 0) {
+      alert("Please select at least one test case.");
+      return;
+    }
+
+    try {
+      setRunningTests(true);
+      await RunSelectedTestCase(selectedProject, selectedRows);
+      alert("Selected test cases execution started.");
+      navigate("/runs"); // Navigate to the test runs page
+    } catch (error) {
+      alert(`Error running selected test cases: ${error.message}`);
+    } finally {
+      setRunningTests(false);
+    }
+  };
+
   const columns = React.useMemo(
     () => [
       {
@@ -318,10 +345,14 @@ const TestCasesTable = () => {
           </button>
           <button
             className="bg-teal-600 text-white font-bold py-2 px-4 rounded hover:bg-teal-700"
-            onClick={runAllTestCases}
-            disabled={runningTests || !selectedProject}
+            onClick={handleRunTestCases}
+            disabled={runningTests || !selectedProject} // Disable button when tests are running or no project is selected
           >
-            {runningTests ? "Running..." : "Run All Test Cases"}
+            {runningTests
+              ? "Running..."
+              : selectedRows.length === 0
+              ? "Run All Test Cases"
+              : "Run Selected Test Cases"}
           </button>
           <button
             className="bg-sky-500 text-white font-bold py-2 px-4 rounded hover:bg-sky-700"
