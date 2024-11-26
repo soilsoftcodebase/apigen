@@ -541,7 +541,6 @@ const TestCasesTable = () => {
         selectedProject={selectedProject}
         onClose={() => setShowFormPopup(false)}
         onTestCaseAdded={fetchTestCases}
-        availableUrls={availableUrls}
       />
     </div>
   );

@@ -443,3 +443,18 @@ export async function RunSelectedTestCase(projectName, testCaseList) {
     throw error;
   }
 }
+
+export async function getTestcaseData(projectName) {
+  try {
+    const res = await fetch(
+      `${API_URL}/ApiGen/Projects/${projectName}/testcasedate`
+    );
+    if (!res.ok)
+      throw Error(`Couldn't retrieve test data for project: ${projectName}`);
+
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    throw Error("Error retrieving test data", err);
+  }
+}
