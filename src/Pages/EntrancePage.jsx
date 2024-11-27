@@ -37,7 +37,7 @@ const EntrancePage = () => {
         onClick={handleSignInClick}
         className="px-20 py-4 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800 text-white font-semibold rounded-full shadow-lg transform transition duration-300 hover:scale-105 animate-fade-in-up"
       >
-        Explore Demo
+       Get Started!
       </button>
 
       {/* Keyframe Animations */}
