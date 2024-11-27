@@ -181,7 +181,7 @@ const RunTestCaseTable = ({ testData }) => {
                     onClick={() => toggleRow(run.testRunId)}
                   >
                     <td className="p-3 text-center border-r border-gray-200">
-                      {expandedRows[run.testRunId] ? "▲" : "▼"}
+                      {expandedRows[run.testRunId] ? "▼" : "▶"}
                     </td>
                     <td className="p-3 text-center font-bold border-r border-gray-200">
                       {run.testRunId}

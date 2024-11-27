@@ -19,9 +19,9 @@ const Header = ({ caption, onLogout }) => {
       >
         <div className="rounded-xl px-8 py-4 w-full max-w-8xl flex items-center">
           <img src={logo} alt="APIGEN Logo" className="h-20 justify-start" />
-          <img src={line2} alt="Line" className="h-4 mr-4 justify-start" />
-          <span className="text-white text-4xl font-semibold justify-end ">
-            Advanced API Test Generator and Executor
+          {/* <img src={line2} alt="Line" className="h-4 mr-4 justify-start" /> */}
+          <span className="text-white text-4xl font-semibold justify-end ml-28">
+            Intelligent API Test Platform
           </span>
         </div>
       </header>

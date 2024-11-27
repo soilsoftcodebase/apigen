@@ -345,32 +345,35 @@ const TestCasesTable = () => {
           ))}
         </select>
 
-      {selectedProject && <div className="flex space-x-4 mt-4 sm:mt-0">
-        <button
-          className="bg-zinc-500 font-bold text-white rounded py-2 px-4 hover:bg-zinc-700"
-          onClick={() => setShowFormPopup(true)}
-          disabled={!selectedProject}>
-          Add New Test Case
-        </button>
-        <button
-          className="bg-teal-600 text-white font-bold py-2 px-4 rounded hover:bg-teal-700"
-          onClick={handleRunTestCases}
-          disabled={runningTests || !selectedProject} // Disable button when tests are running or no project is selected
-        >
-          {runningTests
-            ? "Running..."
-            : selectedRows.length === 0
-            ? "Run All Test Cases"
-            : `Run (${selectedRows.length}) Test Cases`}
-        </button>
-        <button
-          className="bg-sky-500 text-white font-bold py-2 px-4 rounded hover:bg-sky-700"
-          onClick={downloadAllTestCases}
-          disabled={!selectedProject}
-        >
-          Download All
-        </button>
-      </div>}
+        {selectedProject && (
+          <div className="flex space-x-4 mt-4 sm:mt-0">
+            <button
+              className="bg-green-500 font-bold text-white rounded py-2 px-4 hover:bg-green-700"
+              onClick={() => setShowFormPopup(true)}
+              disabled={!selectedProject}
+            >
+              Add New Test Case
+            </button>
+            <button
+              className="bg-teal-600 text-white font-bold py-2 px-4 rounded hover:bg-teal-700"
+              onClick={handleRunTestCases}
+              disabled={runningTests || !selectedProject} // Disable button when tests are running or no project is selected
+            >
+              {runningTests
+                ? "Running..."
+                : selectedRows.length === 0
+                ? "Run All Test Cases"
+                : `Run (${selectedRows.length}) Test Cases`}
+            </button>
+            <button
+              className="bg-red-400 text-white font-bold py-2 px-4 rounded hover:bg-red-700"
+              onClick={downloadAllTestCases}
+              disabled={!selectedProject}
+            >
+              Download All
+            </button>
+          </div>
+        )}
       </div>
       {/* Loader Popup */}
       {showPopup && (
