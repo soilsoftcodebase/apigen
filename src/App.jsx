@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { ToastContainer } from 'react-toastify';
 import {
   HashRouter as Router,
   Route,
@@ -147,6 +148,17 @@ const App = () => {
             <Route path="/signup" element={<SignUpForm />} />
           </Routes>
         </div>
+        <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        closeOnClick
+        pauseOnHover
+        draggable
+        pauseOnFocusLoss
+        theme="colored"
+        style={{ marginTop: "25px" }} // Add margin to top
+      />
       </div>
     </Router>
   );

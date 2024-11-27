@@ -3,6 +3,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useTable, useSortBy, usePagination } from "react-table";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   getTestCases,
   getAllProjects,
@@ -130,7 +132,12 @@ const TestCasesTable = () => {
   // Download all test cases as an Excel file
   const downloadAllTestCases = async () => {
     if (!selectedProject) {
-      alert("Please select a project first.");
+      // alert("Please select a project first.");
+      toast.success("Please select a project first.", {
+        // position: toast.POSITION.TOP_RIGHT,
+        autoClose: 4000,
+        theme: "light",
+      });
       return;
     }
 
@@ -148,6 +155,11 @@ const TestCasesTable = () => {
 
       if (allTestCases.length === 0) {
         alert("No test cases found for the selected project.");
+        toast.warn("No test cases found for the selected project.", {
+          // position: toast.POSITION.TOP_RIGHT,
+          autoClose: 4000,
+          theme: "light",
+        });
         return;
       }
 
@@ -156,17 +168,32 @@ const TestCasesTable = () => {
       XLSX.utils.book_append_sheet(workbook, worksheet, "TestCases");
       XLSX.writeFile(workbook, `TestCases_${selectedProject}.xlsx`);
 
-      alert("All test cases downloaded successfully.");
+      // alert("All test cases downloaded successfully.");
+      toast.success("All test cases downloaded successfully.", {
+        // position: toast.POSITION.TOP_RIGHT,
+        autoClose: 4000,
+        theme: "light",
+      });
     } catch (error) {
       console.error("Error downloading all test cases:", error);
       alert("An error occurred while downloading the test cases.");
+      toast.error("An error occurred while downloading the test cases.", {
+        // position: toast.POSITION.TOP_RIGHT,
+        autoClose: 4000,
+        theme: "light",
+      });
     }
   };
 
   // Run all test cases
   const runAllTestCases = async () => {
     if (!selectedProject) {
-      alert("Please select a project first.");
+      // alert("Please select a project first.");
+      toast.warn("Please select a project first!", {
+        // position: toast.POSITION.TOP_RIGHT,
+        autoClose: 4000,
+        theme: "light",
+      });
       return;
     }
 
@@ -186,7 +213,12 @@ const TestCasesTable = () => {
       } while (currentPage <= totalPages);
 
       if (allTestCases.length === 0) {
-        alert("No test cases found for the selected project.");
+        // alert("No test cases found for the selected project.");
+        toast.error("No test cases found for the selected project.!", {
+          // position: toast.POSITION.TOP_RIGHT,
+          autoClose: 4000,
+          theme: "light",
+        });
         setShowPopup(false);
         return;
       }
@@ -195,14 +227,22 @@ const TestCasesTable = () => {
 
       const response = await RunallTestCases(selectedProject, testCaseIds);
 
-      alert(
-        `All test cases execution started successfully. Response: ${JSON.stringify(
-          response
-        )}`
-      );
+      // alert(
+      //   `All test cases execution started successfully. Response: ${JSON.stringify(response)}`
+      // );
+      toast.success(`All test cases execution started successfully. Response: ${JSON.stringify(response)}`, {
+        // position: toast.POSITION.TOP_RIGHT,
+        autoClose: 4000,
+        theme: "light",
+      });
       navigate("/runs");
     } catch (error) {
-      alert(`Failed to execute all test cases. Error: ${error.message}`);
+      // alert(`Failed to execute all test cases. Error: ${error.message}`);
+      toast.error(`Failed to execute all test cases. Error: ${error.message}`, {
+        // position: toast.POSITION.TOP_RIGHT,
+        autoClose: 4000,
+        theme: "light",
+      });
     } finally {
       setRunningTests(false);
       setShowPopup(false);
@@ -211,17 +251,32 @@ const TestCasesTable = () => {
 
   const runSelectedTestCases = async () => {
     if (!selectedProject || selectedRows.length === 0) {
-      alert("Please select at least one test case.");
+      toast.error("Please select at least one test case!", {
+        // position: toast.POSITION.TOP_RIGHT,
+        autoClose: 4000,
+        theme: "light",
+      });
+      // alert("Please select at least one test case.");
       return;
     }
 
     try {
       setRunningTests(true);
       await RunSelectedTestCase(selectedProject, selectedRows);
-      alert("Selected test cases execution started.");
+      // alert("Selected test cases execution started.");
+      toast.success("Selected test cases execution started.!", {
+        // position: toast.POSITION.TOP_RIGHT,
+        autoClose: 4000,
+        theme: "light",
+      });
       navigate("/runs"); // Navigate to the test runs page
     } catch (error) {
-      alert(`Error running selected test cases: ${error.message}`);
+      // alert(`Error running selected test cases: ${error.message}`);
+      toast.error(`Error running selected test cases: ${error.message}`, {
+        // position: toast.POSITION.TOP_RIGHT,
+        autoClose: 4000,
+        theme: "light",
+      });
     } finally {
       setRunningTests(false);
     }
@@ -380,7 +435,7 @@ const TestCasesTable = () => {
         <div className="fixed inset-0 z-50 flex flex-col justify-center items-center bg-black bg-opacity-50 overflow-none">
           <div className="bg-white p-10 rounded-lg shadow-2xl transform scale-95 hover:scale-100 transition-transform duration-300 ease-out w-96 h-96 flex flex-col items-center justify-center">
             {/* Enhanced Loader Animation */}
-            <div className="w-16 h-16 rounded-full border-t-4 border-b-4 border-transparent border-t-blue-500 border-b-purple-500 animate-spin mb-6"></div>
+            <div className="w-16 h-16 rounded-full border-t-4 border-b-4 border-transparent border-t-blue-500 border-b-green-500 animate-spin mb-6"></div>
 
             {/* Creative Text */}
             <p className="text-2xl font-extrabold text-gray-700 text-center leading-relaxed">
@@ -519,7 +574,12 @@ const TestCasesTable = () => {
                 className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700"
                 onClick={() => {
                   navigator.clipboard.writeText(selectedPayload);
-                  alert("Copied to clipboard!");
+                  toast.success("Copied to clipboard!", {
+                    // position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 4000,
+                    theme: "light",
+                  });
+                  // alert("Copied to clipboard!");
                 }}
               >
                 Copy

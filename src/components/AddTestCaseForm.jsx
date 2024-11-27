@@ -4,6 +4,7 @@ import {
   addTestCaseToProject,
   getTestcaseData,
 } from "../Services/apiGenServices"; // Assuming getTestcaseData fetches test cases by project name
+import { toast } from "react-toastify";
 
 const AddTestCaseForm = ({ selectedProject, onClose, onTestCaseAdded }) => {
   const [formData, setFormData] = useState({
@@ -33,7 +34,12 @@ const AddTestCaseForm = ({ selectedProject, onClose, onTestCaseAdded }) => {
         setAvailableUrls(response); // Set the available URLs from the API response
       } catch (error) {
         console.error("Error fetching test cases:", error);
-        alert("An error occurred while fetching the test cases.");
+        // alert("An error occurred while fetching the test cases.");
+        toast.error("An error occurred while fetching the test cases", {
+          // position: toast.POSITION.TOP_RIGHT,
+          autoClose: 4000,
+          theme: "light",
+        });
       } finally {
         setLoading(false);
       }
@@ -69,7 +75,12 @@ const AddTestCaseForm = ({ selectedProject, onClose, onTestCaseAdded }) => {
         });
       } catch (error) {
         console.error("Error selecting test case data:", error);
-        alert("An error occurred while selecting the test case data.");
+        // alert("An error occurred while selecting the test case data.");
+        toast.error("An error occurred while selecting the test data!", {
+          // position: toast.POSITION.TOP_RIGHT,
+          autoClose: 4000,
+          theme: "light",
+        });
       } finally {
         setLoading(false); // Hide loading spinner or indication
       }
@@ -87,7 +98,17 @@ const AddTestCaseForm = ({ selectedProject, onClose, onTestCaseAdded }) => {
 
     try {
       await addTestCaseToProject(selectedProject, formData);
-      alert("Test case added successfully!");
+      // toast.success("Test case added successfully!", {
+      //   position: "bottom-right",
+      // });
+      toast.success("Test case added successfully!", {
+        // position: toast.POSITION.TOP_RIGHT,
+        autoClose: 4000,
+        theme: "light",
+      });
+      
+      
+      // alert("Test case added successfully!");
       setFormData({
         testCaseName: "",
         inputRequestUrl: "",
@@ -103,7 +124,12 @@ const AddTestCaseForm = ({ selectedProject, onClose, onTestCaseAdded }) => {
       onClose(); // Close the form
     } catch (error) {
       console.error("Error adding test case:", error);
-      alert("An error occurred while adding the test case.");
+      // alert("An error occurred while adding the test case.");
+      toast.error("An error occurred while adding the test case!", {
+        // position: toast.POSITION.TOP_RIGHT,
+        autoClose: 4000,
+        theme: "light",
+      });
     }
   };
 
