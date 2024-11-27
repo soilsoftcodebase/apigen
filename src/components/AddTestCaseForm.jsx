@@ -282,7 +282,7 @@ const AddTestCaseForm = ({ selectedProject, onClose, onTestCaseAdded }) => {
             {/* Parameters as a single string */}
             <div>
               <label className="block mb-2 text-sm font-semibold text-gray-800">
-                Parameters (comma-separated)
+                Parameters
               </label>
               <input
                 id="parameters"
@@ -292,6 +292,7 @@ const AddTestCaseForm = ({ selectedProject, onClose, onTestCaseAdded }) => {
                 onChange={handleFormChange}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
                 placeholder="Enter parameters as a comma-separated string"
+                disabled
               />
             </div>
 

@@ -345,35 +345,36 @@ const TestCasesTable = () => {
           ))}
         </select>
 
-        <div className="flex space-x-4 mt-4 sm:mt-0">
-          <button
-            className="bg-zinc-500 font-bold text-white rounded py-2 px-4 hover:bg-zinc-700"
-            onClick={() => setShowFormPopup(true)}
-          >
-            Add New Test Case
-          </button>
-          <button
-            className="bg-teal-600 text-white font-bold py-2 px-4 rounded hover:bg-teal-700"
-            onClick={handleRunTestCases}
-            disabled={runningTests || !selectedProject} // Disable button when tests are running or no project is selected
-          >
-            {runningTests
-              ? "Running..."
-              : selectedRows.length === 0
-              ? "Run All Test Cases"
-              : "Run Selected Test Cases"}
-          </button>
-          <button
-            className="bg-sky-500 text-white font-bold py-2 px-4 rounded hover:bg-sky-700"
-            onClick={downloadAllTestCases}
-          >
-            Download All
-          </button>
-        </div>
+      {selectedProject && <div className="flex space-x-4 mt-4 sm:mt-0">
+        <button
+          className="bg-zinc-500 font-bold text-white rounded py-2 px-4 hover:bg-zinc-700"
+          onClick={() => setShowFormPopup(true)}
+          disabled={!selectedProject}>
+          Add New Test Case
+        </button>
+        <button
+          className="bg-teal-600 text-white font-bold py-2 px-4 rounded hover:bg-teal-700"
+          onClick={handleRunTestCases}
+          disabled={runningTests || !selectedProject} // Disable button when tests are running or no project is selected
+        >
+          {runningTests
+            ? "Running..."
+            : selectedRows.length === 0
+            ? "Run All Test Cases"
+            : `Run (${selectedRows.length}) Test Cases`}
+        </button>
+        <button
+          className="bg-sky-500 text-white font-bold py-2 px-4 rounded hover:bg-sky-700"
+          onClick={downloadAllTestCases}
+          disabled={!selectedProject}
+        >
+          Download All
+        </button>
+      </div>}
       </div>
       {/* Loader Popup */}
       {showPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex flex-col justify-center items-center bg-black bg-opacity-50 overflow-none">
           <div className="bg-white p-10 rounded-lg shadow-2xl transform scale-95 hover:scale-100 transition-transform duration-300 ease-out w-96 h-96 flex flex-col items-center justify-center">
             {/* Enhanced Loader Animation */}
             <div className="w-16 h-16 rounded-full border-t-4 border-b-4 border-transparent border-t-blue-500 border-b-purple-500 animate-spin mb-6"></div>

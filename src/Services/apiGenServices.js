@@ -1,5 +1,5 @@
 const API_URL = "https://localhost:7146/api";
-
+const Page_size = 25;
 // Function to create a new project
 export async function createProject(saveProjectDto) {
   try {
@@ -132,7 +132,7 @@ export async function generateTestCases(projectName) {
 export async function getTestCases(projectName, pageNumber) {
   try {
     const res = await fetch(
-      `${API_URL}/ApiGen/Projects/${projectName}/testcases?pageNumber=${pageNumber}`,
+      `${API_URL}/ApiGen/Projects/${projectName}/testcases?pageNumber=${pageNumber}&pageSize=${Page_size}` ,
       {
         method: "GET",
         headers: {
