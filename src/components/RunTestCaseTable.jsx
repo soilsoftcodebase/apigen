@@ -112,8 +112,12 @@ const RunTestCaseTable = ({ testData }) => {
       </h1>
       <div className="w-full h-px bg-gray-300 my-6" />
       <div className="mb-6 flex items-center space-x-4">
-        <label className="font-semibold text-gray-900 ">Select Project:</label>
+        <label htmlFor="project-select" className="font-semibold text-gray-900">
+          Select Project:
+        </label>
         <select
+          id="project-select"
+          name="project"
           value={selectedProject}
           onChange={handleProjectChange}
           className="p-2 border border-gray-300 rounded-md font-semibold text-gray-700"
@@ -336,7 +340,7 @@ const RunTestCaseTable = ({ testData }) => {
         </div>
       ) : (
         <div className="text-center text-gray-600 font-bold">
-          No test data available.
+          No test runs available.
         </div>
       )}
 
