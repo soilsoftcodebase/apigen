@@ -1,6 +1,6 @@
-import React from "react";
+// import React from "react";
 import GenerateTestCaseTable from "../components/GenerateTestCaseTable";
-import Header from "../components/Header";
+// import Header from "../components/Header";
 
 const Tests = () => {
   return (

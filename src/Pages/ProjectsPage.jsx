@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+//import { useNavigate } from "react-router-dom";
 import PopupForm from "../components/PopupForm";
 import {
   getAllProjects,
@@ -17,7 +17,7 @@ const ProjectsPage = () => {
     swaggerVersion: "",
   });
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // Fetch all projects on mount
   useEffect(() => {

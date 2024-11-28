@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FaBars,
@@ -13,6 +13,7 @@ import {
   FaTachometerAlt, // Importing a new icon for "Performance Tests"
 } from "react-icons/fa";
 
+// eslint-disable-next-line react/prop-types
 const SidebarComponent = ({ onLogout }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
@@ -28,7 +29,11 @@ const SidebarComponent = ({ onLogout }) => {
     { name: "Tests", path: "/tests", icon: <FaVial /> },
     { name: "Test Data", path: "/testdata", icon: <FaDatabase /> },
     { name: "Runs", path: "/runs", icon: <FaPlay /> },
-    { name: "Performance Tests", path: "/performance-tests", icon: <FaTachometerAlt /> }, // New menu item
+    {
+      name: "Performance Tests",
+      path: "/performance-tests",
+      icon: <FaTachometerAlt />,
+    }, // New menu item
     { name: "Settings", path: "/settings", icon: <FaCog /> },
   ];
 
@@ -50,8 +55,12 @@ const SidebarComponent = ({ onLogout }) => {
           <div className="flex items-center justify-between pb-5 border-b border-gray-700 mt-4">
             {!isCollapsed && (
               <div>
-                <h1 className="text-lg font-bold text-indigo-200">Control Panel</h1>
-                <p className="text-xs font-medium text-gray-400">Admin Dashboard</p>
+                <h1 className="text-lg font-bold text-indigo-200">
+                  Control Panel
+                </h1>
+                <p className="text-xs font-medium text-gray-400">
+                  Admin Dashboard
+                </p>
               </div>
             )}
             <button
@@ -78,7 +87,9 @@ const SidebarComponent = ({ onLogout }) => {
                 >
                   <span className="text-xl">{item.icon}</span>
                   {!isCollapsed && (
-                    <span className="ml-3 text-sm font-semibold">{item.name}</span>
+                    <span className="ml-3 text-sm font-semibold">
+                      {item.name}
+                    </span>
                   )}
                 </Link>
               </li>

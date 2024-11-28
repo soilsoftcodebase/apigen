@@ -19,14 +19,14 @@ const AddTestCaseForm = ({ selectedProject, onClose, onTestCaseAdded }) => {
     parameters: "", // Single string for parameters (comma-separated values)
   });
 
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [availableUrls, setAvailableUrls] = useState([]); // Stores the available test case URLs for the project
 
   // Fetch test cases for the selected project when the selectedProject prop changes
   useEffect(() => {
     if (!selectedProject) return; // Do nothing if no project is selected
     const fetchTestCases = async () => {
-      setLoading(true);
+      //setLoading(true);
       try {
         // Fetch test cases for the selected project
         const response = await getTestcaseData(selectedProject);
@@ -41,7 +41,7 @@ const AddTestCaseForm = ({ selectedProject, onClose, onTestCaseAdded }) => {
           theme: "light",
         });
       } finally {
-        setLoading(false);
+        //setLoading(false);
       }
     };
 
@@ -62,7 +62,7 @@ const AddTestCaseForm = ({ selectedProject, onClose, onTestCaseAdded }) => {
     );
 
     if (selectedTestCase) {
-      setLoading(true); // Show loading spinner or indication
+      // setLoading(true); // Show loading spinner or indication
       try {
         // Populate the form with the selected test case details from the API response
         setFormData({
@@ -82,7 +82,7 @@ const AddTestCaseForm = ({ selectedProject, onClose, onTestCaseAdded }) => {
           theme: "light",
         });
       } finally {
-        setLoading(false); // Hide loading spinner or indication
+        // setLoading(false); // Hide loading spinner or indication
       }
     }
   };
@@ -106,8 +106,7 @@ const AddTestCaseForm = ({ selectedProject, onClose, onTestCaseAdded }) => {
         autoClose: 4000,
         theme: "light",
       });
-      
-      
+
       // alert("Test case added successfully!");
       setFormData({
         testCaseName: "",

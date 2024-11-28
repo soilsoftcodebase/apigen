@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { ToastContainer } from 'react-toastify';
+import { useState, useEffect } from "react";
+import { ToastContainer } from "react-toastify";
 import {
   HashRouter as Router,
   Route,
@@ -17,7 +17,6 @@ import Settings from "./Pages/Settings";
 import Login from "./Pages/LoginPage";
 import SignUpForm from "./components/SignUpForm";
 import Header from "./components/Header";
-import SavedProjects from "./components/YourProjects";
 import PopupForm from "./components/PopupForm";
 import GenerateTestCaseTable from "./components/GenerateTestCaseTable";
 import TestData from "./Pages/TestData";
@@ -47,9 +46,7 @@ const App = () => {
     <Router>
       <div className="flex min-h-screen">
         {/* Show Sidebar only after login */}
-        {isAuthenticated && (
-          <SidebarComponent onLogout={handleLogout} />
-        )}
+        {isAuthenticated && <SidebarComponent onLogout={handleLogout} />}
 
         <div className="flex-1 relative">
           {/* Render header with logout functionality */}
@@ -86,12 +83,6 @@ const App = () => {
               element={isAuthenticated ? <Projects /> : <Navigate to="/" />}
             />
             <Route
-              path="/saved-projects"
-              element={
-                isAuthenticated ? <SavedProjects /> : <Navigate to="/" />
-              }
-            />
-            <Route
               path="/ProjectsPage"
               element={isAuthenticated ? <ProjectsPage /> : <Navigate to="/" />}
             />
@@ -113,7 +104,9 @@ const App = () => {
             />
             <Route
               path="/performance-tests"
-              element={isAuthenticated ? <PerformanceTestForm /> : <Navigate to="/" />}
+              element={
+                isAuthenticated ? <PerformanceTestForm /> : <Navigate to="/" />
+              }
             />
             <Route
               path="/GenerateTestCaseTable"
@@ -149,16 +142,16 @@ const App = () => {
           </Routes>
         </div>
         <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        closeOnClick
-        pauseOnHover
-        draggable
-        pauseOnFocusLoss
-        theme="colored"
-        style={{ marginTop: "25px" }} // Add margin to top
-      />
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          closeOnClick
+          pauseOnHover
+          draggable
+          pauseOnFocusLoss
+          theme="colored"
+          style={{ marginTop: "25px" }} // Add margin to top
+        />
       </div>
     </Router>
   );

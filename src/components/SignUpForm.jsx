@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import bgImage from "../assets/loginbg.jpg"; // Update path as needed
 import Header from "../components/Header";

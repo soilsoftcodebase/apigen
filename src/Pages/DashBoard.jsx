@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { fetchProjectSummary } from "../Services/apiGenServices";
 
 const Dashboard = () => {
@@ -43,7 +43,7 @@ const Dashboard = () => {
             <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce delay-300"></div>
           </div>
           <p className="mt-6 text-2xl font-semibold text-gray-700 animate-pulse">
-            "Preparing your dashboard..."
+            {"Preparing your dashboard..."}
           </p>
           <p className="text-gray-500 mt-2 text-lg">
             Gathering insights to boost your testing capabilities.

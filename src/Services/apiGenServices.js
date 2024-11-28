@@ -1,4 +1,5 @@
-const API_URL = "https://localhost:7146/api";
+const API_URL = "https://apigenbackend.soilsoft.ai:5001/api";
+
 const Page_size = 25;
 // Function to create a new project
 export async function createProject(saveProjectDto) {

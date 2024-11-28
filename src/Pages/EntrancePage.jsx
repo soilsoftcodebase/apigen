@@ -1,5 +1,4 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import logo2 from "../assets/logo_2.png"; // Update path if needed
 import sslogo from "../assets/soilsoftlogo.png"; // Update path if needed
 
@@ -7,7 +6,7 @@ const EntrancePage = () => {
   const navigate = useNavigate();
 
   const handleSignInClick = () => {
-    navigate('/login'); // Redirects to login page
+    navigate("/login"); // Redirects to login page
   };
 
   return (
@@ -29,7 +28,12 @@ const EntrancePage = () => {
 
       {/* Description */}
       <p className="text-center max-w-3xl text-lg mb-10 text-gray-300 px-6 animate-fade-in-down">
-        <strong>APIGEN</strong> is a powerful software testing tool designed to automate API testing effortlessly. Utilizing OpenAPI, it auto-generates and executes API test cases, providing a high-quality, efficient solution for developers and testers alike. With project creation, test generation, and comprehensive result tracking, APIGEN is your essential tool for reliable API testing.
+        <strong>APIGEN</strong> is a powerful software testing tool designed to
+        automate API testing effortlessly. Utilizing OpenAPI, it auto-generates
+        and executes API test cases, providing a high-quality, efficient
+        solution for developers and testers alike. With project creation, test
+        generation, and comprehensive result tracking, APIGEN is your essential
+        tool for reliable API testing.
       </p>
 
       {/* Dark Gradient Button */}
@@ -37,7 +41,7 @@ const EntrancePage = () => {
         onClick={handleSignInClick}
         className="px-20 py-4 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800 text-white font-semibold rounded-full shadow-lg transform transition duration-300 hover:scale-105 animate-fade-in-up"
       >
-       Get Started!
+        Get Started!
       </button>
 
       {/* Keyframe Animations */}

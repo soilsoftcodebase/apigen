@@ -1,13 +1,11 @@
-import React from 'react'
-import PerformanceTestForm from '../components/PerformanceTestsForm'
+import PerformanceTestForm from "../components/PerformanceTestsForm";
 
 const PerformanceTestsPage = () => {
   return (
-      <div>
-        
-      <PerformanceTestForm/>
+    <div>
+      <PerformanceTestForm />
     </div>
-  )
-}
+  );
+};
 
-export default PerformanceTestsPage
+export default PerformanceTestsPage;

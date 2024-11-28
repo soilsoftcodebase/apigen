@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { ClipboardIcon, CheckIcon, XMarkIcon } from "@heroicons/react/24/solid";
+import { ClipboardIcon} from "@heroicons/react/24/solid";
 import {
-  getAllTestRuns,
   getAllProjects,
   getTestRunsByProject,
 } from "../Services/apiGenServices";
 
-const RunTestCaseTable = ({ testData }) => {
+const RunTestCaseTable = () => {
   const [filteredRunData, setFilteredRunData] = useState([]);
   const [isAllExpanded, setIsAllExpanded] = useState(false);
   const [expandedRows, setExpandedRows] = useState({});
@@ -15,7 +14,7 @@ const RunTestCaseTable = ({ testData }) => {
   const [selectedProject, setSelectedProject] = useState("");
   const [projects, setProjects] = useState([]);
   const [isFiltering, setIsFiltering] = useState(false);
-  const [runs, setRuns] = useState([]);
+ // const [runs, setRuns] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const fetchProjectsAndRuns = useCallback(async () => {
@@ -96,11 +95,11 @@ const RunTestCaseTable = ({ testData }) => {
     setExpandedContent(null);
   };
 
-  const handleOutsideClick = (e) => {
-    if (e.target.id === "modal-background") {
-      closeExpandedContent();
-    }
-  };
+  // const handleOutsideClick = (e) => {
+  //   if (e.target.id === "modal-background") {
+  //     closeExpandedContent();
+  //   }
+  // };
 
   const truncateText = (text, maxLength = 30) =>
     text && text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;

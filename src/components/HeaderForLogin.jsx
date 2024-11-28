@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { FiLogOut } from "react-icons/fi";
-import PropTypes from "prop-types";
+// import  { useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import { FiLogOut } from "react-icons/fi";
+// import PropTypes from "prop-types";
 import logo from "../assets/logo.png";
 
 const HeaderForLogin = () => {

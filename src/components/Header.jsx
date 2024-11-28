@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import  { useState } from "react";
+// import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import logo from "../assets/logo.png";
-import line2 from "../assets/line.png";
+//import line2 from "../assets/line.png";
 
-const Header = ({ caption, onLogout }) => {
-  const navigate = useNavigate();
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+const Header = () => {
+  //const navigate = useNavigate();
+  //const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   return (
     <div
@@ -21,7 +21,7 @@ const Header = ({ caption, onLogout }) => {
           <img src={logo} alt="APIGEN Logo" className="h-20 justify-start" />
           {/* <img src={line2} alt="Line" className="h-4 mr-4 justify-start" /> */}
           <span className="text-white text-4xl font-semibold justify-end ml-28">
-          | Intelligent API Test Platform  |
+            | Intelligent API Test Platform |
           </span>
         </div>
       </header>

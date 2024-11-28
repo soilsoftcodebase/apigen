@@ -1,4 +1,3 @@
-import React from "react";
 import TestDataTable from "../components/TestDataTable";
 
 const TestData = () => {

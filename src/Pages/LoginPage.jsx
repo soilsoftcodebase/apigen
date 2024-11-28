@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import bgImage from "../assets/loginbg.jpg"; // Update path as needed
 import HeaderLogin from "../components/HeaderForLogin";
 
+// eslint-disable-next-line react/prop-types
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -78,7 +79,7 @@ const Login = ({ onLogin }) => {
               </button>
             </form>
             <p className="text-gray-500 mt-4 text-center">
-              Don't have an account?{" "}
+              {"Don't have an account?"}
               <a
                 href="/signup"
                 className="text-sky-800 font-semibold hover:underline"
