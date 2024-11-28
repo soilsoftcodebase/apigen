@@ -72,6 +72,7 @@ const TestCasesTable = () => {
 
   const fetchTestCases = useCallback(async () => {
     if (!selectedProject) return;
+    setTestCases([]);
     setLoading(true);
     try {
       const data = await getTestCases(selectedProject, currentPage);
@@ -528,7 +529,7 @@ const TestCasesTable = () => {
       )}
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {testCases.length > 0 && (
         <div className="flex justify-center items-center mt-4">
           <div className="flex items-center space-x-2">
             <button
