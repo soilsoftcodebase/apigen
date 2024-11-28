@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { ClipboardIcon} from "@heroicons/react/24/solid";
+import { ClipboardIcon } from "@heroicons/react/24/solid";
 import {
   getAllProjects,
   getTestRunsByProject,
 } from "../Services/apiGenServices";
+import { toast } from "react-toastify";
 
 const RunTestCaseTable = () => {
   const [filteredRunData, setFilteredRunData] = useState([]);
@@ -13,8 +14,9 @@ const RunTestCaseTable = () => {
   const [expandedContent, setExpandedContent] = useState(null);
   const [selectedProject, setSelectedProject] = useState("");
   const [projects, setProjects] = useState([]);
+  const [selectedPayload, setSelectedPayload] = useState(null);
   const [isFiltering, setIsFiltering] = useState(false);
- // const [runs, setRuns] = useState([]);
+  // const [runs, setRuns] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const fetchProjectsAndRuns = useCallback(async () => {
@@ -334,7 +336,20 @@ const RunTestCaseTable = () => {
 
                                   {/* Response Code */}
                                   <td className="p-2 text-center border-r border-gray-300">
-                                    {test.Response || "N/A"}
+                                    {test.response == [] ? (
+                                      "N/A"
+                                    ) : (
+                                      <button
+                                        onClick={() =>
+                                          setSelectedPayload(
+                                            test.response || "N/A"
+                                          )
+                                        }
+                                        className="text-blue-600 underline hover:text-blue-800"
+                                      >
+                                        View Response
+                                      </button>
+                                    )}
                                   </td>
 
                                   {/* Status */}
@@ -389,6 +404,42 @@ const RunTestCaseTable = () => {
               <button
                 className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700 focus:outline-none"
                 onClick={closeExpandedContent}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Payload Modal */}
+      {selectedPayload && (
+        <div
+          className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 overflow-auto hide-scrollbar"
+          onClick={() => setSelectedPayload(null)}
+        >
+          <div className="bg-white p-6 rounded shadow-lg w-1/2 max-h-[90vh] overflow-auto">
+            <h3 className="text-lg font-bold mb-4">Details</h3>
+            <pre className="text-sm bg-gray-100 p-4 rounded overflow-auto">
+              {selectedPayload}
+            </pre>
+            <div className="flex justify-between items-center mt-4">
+              <button
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700"
+                onClick={() => {
+                  navigator.clipboard.writeText(selectedPayload);
+                  toast.success("Copied to clipboard!", {
+                    // position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 4000,
+                    theme: "light",
+                  });
+                  // alert("Copied to clipboard!");
+                }}
+              >
+                Copy
+              </button>
+              <button
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
+                onClick={() => setSelectedPayload(null)}
               >
                 Close
               </button>

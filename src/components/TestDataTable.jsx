@@ -1,4 +1,4 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FaRegEdit } from "react-icons/fa";
 import {
   getAllProjects,
@@ -121,7 +121,10 @@ const TestDataTable = () => {
           >
             <option value="">Choose a project</option>
             {projects.map((project) => (
-              <option key={project.id} value={project.projectName}>
+              <option
+                key={`${project.id}-${project.projectName}`}
+                value={project.projectName}
+              >
                 {project.projectName}
               </option>
             ))}
