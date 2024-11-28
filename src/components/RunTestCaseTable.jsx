@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { ClipboardIcon, CheckIcon, XMarkIcon } from "@heroicons/react/24/solid";
-import { getAllTestRuns, getAllProjects } from "../Services/apiGenServices";
+import {
+  getAllTestRuns,
+  getAllProjects,
+  getTestRunsByProject,
+} from "../Services/apiGenServices";
 
 const RunTestCaseTable = ({ testData }) => {
   const [filteredRunData, setFilteredRunData] = useState([]);
@@ -12,6 +16,7 @@ const RunTestCaseTable = ({ testData }) => {
   const [projects, setProjects] = useState([]);
   const [isFiltering, setIsFiltering] = useState(false);
   const [runs, setRuns] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const fetchProjectsAndRuns = useCallback(async () => {
     try {
@@ -20,12 +25,26 @@ const RunTestCaseTable = ({ testData }) => {
       setProjects(projectsResponse || []);
 
       // Fetch test runs
-      const runsResponse = await getAllTestRuns();
-      setRuns(runsResponse || []);
+      //const runsResponse = await getAllTestRuns();
+      //setRuns(runsResponse || []);
     } catch (err) {
       console.error("Failed to fetch data. Please try again later.", err);
     }
   }, []);
+
+  const fetchTestCases = useCallback(async () => {
+    if (!selectedProject) return;
+    setLoading(true);
+    try {
+      const data = await getTestRunsByProject(selectedProject);
+      setFilteredRunData(data.testCases || []);
+      // Extract inputRequestUrl
+    } catch (error) {
+      console.log("Failed to load test cases. Please try again later.", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedProject]);
 
   useEffect(() => {
     fetchProjectsAndRuns();
@@ -36,17 +55,12 @@ const RunTestCaseTable = ({ testData }) => {
     setSelectedProject(projectName);
     setIsFiltering(true);
 
-    setTimeout(() => {
-      if (!projectName) {
-        setFilteredRunData([]);
-      } else {
-        const filteredData = runs.filter(
-          (run) => run.projectName === projectName
-        );
-        setFilteredRunData(filteredData);
-      }
-      setIsFiltering(false);
-    }, 500);
+    if (!projectName) {
+      setFilteredRunData([]);
+    } else {
+      fetchTestCases();
+    }
+    setIsFiltering(false);
   };
 
   const toggleRow = (runId) => {
@@ -134,7 +148,9 @@ const RunTestCaseTable = ({ testData }) => {
         <div className="flex justify-center items-center h-64">
           <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center space-y-4">
             <div className="w-16 h-16 border-t-4 border-b-4 border-blue-500 rounded-full animate-spin"></div>
-            <p className="text-lg font-bold text-gray-700">Filtering Data...</p>
+            <p className="text-lg font-bold text-gray-700">
+              Loading Test Runs...
+            </p>
           </div>
         </div>
       ) : filteredRunData.length > 0 ? (

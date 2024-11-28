@@ -3,8 +3,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useTable, useSortBy, usePagination } from "react-table";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   getTestCases,
   getAllProjects,
@@ -28,14 +28,6 @@ const TestCasesTable = () => {
   const [showPopup, setShowPopup] = useState(false); // Manage loader popup
   const navigate = useNavigate(); // Navigate to different routes
   const [showFormPopup, setShowFormPopup] = useState(false);
-
-  const availableUrls =
-    testCases
-      .filter((testCase) => testCase.expectedResponseCode === 200) // Filter by response code 200
-      .map((testCase) => ({
-        inputRequestUrl: testCase.inputRequestUrl,
-        apiEndpointId: testCase.apiEndpointId, // Include apiEndpointId as well
-      })) || [];
 
   // Fetch all projects on component mount
   useEffect(() => {
@@ -230,11 +222,16 @@ const TestCasesTable = () => {
       // alert(
       //   `All test cases execution started successfully. Response: ${JSON.stringify(response)}`
       // );
-      toast.success(`All test cases execution started successfully. Response: ${JSON.stringify(response)}`, {
-        // position: toast.POSITION.TOP_RIGHT,
-        autoClose: 4000,
-        theme: "light",
-      });
+      toast.success(
+        `All test cases execution started successfully. Response: ${JSON.stringify(
+          response
+        )}`,
+        {
+          // position: toast.POSITION.TOP_RIGHT,
+          autoClose: 4000,
+          theme: "light",
+        }
+      );
       navigate("/runs");
     } catch (error) {
       // alert(`Failed to execute all test cases. Error: ${error.message}`);

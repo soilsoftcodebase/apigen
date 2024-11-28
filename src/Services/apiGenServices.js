@@ -132,7 +132,7 @@ export async function generateTestCases(projectName) {
 export async function getTestCases(projectName, pageNumber) {
   try {
     const res = await fetch(
-      `${API_URL}/ApiGen/Projects/${projectName}/testcases?pageNumber=${pageNumber}&pageSize=${Page_size}` ,
+      `${API_URL}/ApiGen/Projects/${projectName}/testcases?pageNumber=${pageNumber}&pageSize=${Page_size}`,
       {
         method: "GET",
         headers: {
@@ -447,6 +447,19 @@ export async function getTestcaseData(projectName) {
     const res = await fetch(
       `${API_URL}/ApiGen/Projects/${projectName}/testcasedate`
     );
+    if (!res.ok)
+      throw Error(`Couldn't retrieve test data for project: ${projectName}`);
+
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    throw Error("Error retrieving test data", err);
+  }
+}
+
+export async function getTestRunsByProject(projectName) {
+  try {
+    const res = await fetch(`{API_URL}/TestCases/${projectName}/gettestruns`);
     if (!res.ok)
       throw Error(`Couldn't retrieve test data for project: ${projectName}`);
 
