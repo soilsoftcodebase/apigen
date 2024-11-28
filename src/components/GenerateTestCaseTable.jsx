@@ -383,6 +383,8 @@ const TestCasesTable = () => {
       <div className="w-full h-px bg-gray-300 my-6" />
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
         <select
+          id="project-select"
+          name="project"
           value={selectedProject || ""}
           onChange={handleProjectChange}
           className="p-2 border rounded w-full sm:w-auto focus:ring-2 focus:ring-blue-500 font-semibold"
@@ -390,8 +392,8 @@ const TestCasesTable = () => {
           <option value="" disabled>
             {projects.length > 0 ? "Choose a project" : "No projects available"}
           </option>
-          {projects.map((project) => (
-            <option key={project.id} value={project.id}>
+          {projects.map((project, index) => (
+            <option key={project.id || index} value={project.id}>
               {project.projectName}
             </option>
           ))}
@@ -409,7 +411,7 @@ const TestCasesTable = () => {
             <button
               className="bg-teal-600 text-white font-bold py-2 px-4 rounded hover:bg-teal-700"
               onClick={handleRunTestCases}
-              disabled={runningTests || !selectedProject} // Disable button when tests are running or no project is selected
+              disabled={runningTests || !selectedProject}
             >
               {runningTests
                 ? "Running..."
@@ -427,6 +429,7 @@ const TestCasesTable = () => {
           </div>
         )}
       </div>
+
       {/* Loader Popup */}
       {showPopup && (
         <div className="fixed inset-0 z-50 flex flex-col justify-center items-center bg-black bg-opacity-50 overflow-none">
@@ -472,13 +475,16 @@ const TestCasesTable = () => {
             className="table-auto w-full rounded-t-lg border-collapse border border-gray-400 shadow-md rounded-lg overflow-auto hide-scrollbar"
           >
             <thead className="bg-gradient-to-r from-cyan-950 to-sky-900 text-white rounded-t-lg">
-              {headerGroups.map((headerGroup) => (
-                <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
-                  {headerGroup.headers.map((column) => (
+              {headerGroups.map((headerGroup, index) => (
+                <tr
+                  {...headerGroup.getHeaderGroupProps()}
+                  key={headerGroup.id || `headerGroup-${index}`} // Explicit key
+                >
+                  {headerGroup.headers.map((column, colIndex) => (
                     <th
                       {...column.getHeaderProps(column.getSortByToggleProps())}
                       className="p-2 border border-gray-400 font-bold text-center"
-                      key={column.id}
+                      key={column.id || `column-${colIndex}`} // Explicit key
                     >
                       {column.render("Header")}
                     </th>
@@ -486,6 +492,7 @@ const TestCasesTable = () => {
                 </tr>
               ))}
             </thead>
+
             <tbody
               {...getTableBodyProps()}
               className="odd:bg-gray-100 even:bg-gray-200bg-white"
@@ -495,18 +502,23 @@ const TestCasesTable = () => {
                 return (
                   <tr
                     {...row.getRowProps()}
+                    key={row.getRowProps().key} // Explicitly set the key for the row
                     className="hover:bg-gray-200"
-                    key={row.getRowProps().key}
                   >
-                    {row.cells.map((cell) => (
-                      <td
-                        key={cell.getCellProps().key}
-                        {...cell.getCellProps()}
-                        className="p-2 font-medium border border-gray-300 text-center"
-                      >
-                        {cell.render("Cell")}
-                      </td>
-                    ))}
+                    {row.cells.map((cell) => {
+                      const cellProps = cell.getCellProps();
+                      const { key, ...rest } = cellProps; // Extract `key` from cellProps
+
+                      return (
+                        <td
+                          {...rest} // Spread the remaining props except key
+                          key={key} // Explicitly set the key for the cell
+                          className="p-2 font-medium border border-gray-300 text-center"
+                        >
+                          {cell.render("Cell")}
+                        </td>
+                      );
+                    })}
                   </tr>
                 );
               })}

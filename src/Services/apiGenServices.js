@@ -459,7 +459,7 @@ export async function getTestcaseData(projectName) {
 
 export async function getTestRunsByProject(projectName) {
   try {
-    const res = await fetch(`{API_URL}/TestCases/${projectName}/gettestruns`);
+    const res = await fetch(`${API_URL}/TestCases/${projectName}/gettestruns`);
     if (!res.ok)
       throw Error(`Couldn't retrieve test data for project: ${projectName}`);
 

@@ -25,32 +25,33 @@ const RunTestCaseTable = ({ testData }) => {
       setProjects(projectsResponse || []);
 
       // Fetch test runs
-      //const runsResponse = await getAllTestRuns();
-      //setRuns(runsResponse || []);
+      // const runsResponse = await getAllTestRuns();
+      // setRuns(runsResponse || []);
     } catch (err) {
       console.error("Failed to fetch data. Please try again later.", err);
     }
   }, []);
 
-  const fetchTestCases = useCallback(async () => {
-    if (!selectedProject) return;
+  const fetchTestCases = useCallback(async (projectName) => {
+    if (!projectName) return;
     setLoading(true);
     try {
-      const data = await getTestRunsByProject(selectedProject);
-      setFilteredRunData(data.testCases || []);
+      const data = await getTestRunsByProject(projectName);
+      setFilteredRunData(data || []);
+      // console.log(data);
       // Extract inputRequestUrl
     } catch (error) {
       console.log("Failed to load test cases. Please try again later.", error);
     } finally {
       setLoading(false);
     }
-  }, [selectedProject]);
+  }, []);
 
   useEffect(() => {
     fetchProjectsAndRuns();
   }, [fetchProjectsAndRuns]);
 
-  const handleProjectChange = (e) => {
+  const handleProjectChange = async (e) => {
     const projectName = e.target.value;
     setSelectedProject(projectName);
     setIsFiltering(true);
@@ -58,7 +59,7 @@ const RunTestCaseTable = ({ testData }) => {
     if (!projectName) {
       setFilteredRunData([]);
     } else {
-      fetchTestCases();
+      await fetchTestCases(projectName);
     }
     setIsFiltering(false);
   };
