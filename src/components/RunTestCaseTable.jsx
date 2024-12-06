@@ -5,6 +5,7 @@ import {
   getTestRunsByProject,
 } from "../Services/apiGenServices";
 import { toast } from "react-toastify";
+import * as XLSX from "xlsx";
 
 const RunTestCaseTable = () => {
   const [filteredRunData, setFilteredRunData] = useState([]);
@@ -16,18 +17,12 @@ const RunTestCaseTable = () => {
   const [projects, setProjects] = useState([]);
   const [selectedPayload, setSelectedPayload] = useState(null);
   const [isFiltering, setIsFiltering] = useState(false);
-  // const [runs, setRuns] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const fetchProjectsAndRuns = useCallback(async () => {
     try {
-      // Fetch projects
       const projectsResponse = await getAllProjects();
       setProjects(projectsResponse || []);
-
-      // Fetch test runs
-      // const runsResponse = await getAllTestRuns();
-      // setRuns(runsResponse || []);
     } catch (err) {
       console.error("Failed to fetch data. Please try again later.", err);
     }
@@ -39,8 +34,6 @@ const RunTestCaseTable = () => {
     try {
       const data = await getTestRunsByProject(projectName);
       setFilteredRunData(data || []);
-      // console.log(data);
-      // Extract inputRequestUrl
     } catch (error) {
       console.log("Failed to load test cases. Please try again later.", error);
     } finally {
@@ -97,12 +90,6 @@ const RunTestCaseTable = () => {
     setExpandedContent(null);
   };
 
-  // const handleOutsideClick = (e) => {
-  //   if (e.target.id === "modal-background") {
-  //     closeExpandedContent();
-  //   }
-  // };
-
   const truncateText = (text, maxLength = 30) =>
     text && text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
 
@@ -115,10 +102,61 @@ const RunTestCaseTable = () => {
     return statusStyles[status.toLowerCase()] || "bg-white text-gray-800";
   };
 
-  const handleCopyFeedback = (value, id) => {
-    handleCopy(value, id);
-    // Trigger feedback for the copied value
-    alert(`Copied to clipboard: ${value}`);
+  const downloadExcel = (data, filename) => {
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+    XLSX.writeFile(workbook, `${filename}.xlsx`);
+  };
+
+  // const handleCopyFeedback = (value, id) => {
+  //   handleCopy(value, id);
+  //   // Trigger feedback for the copied value
+  //   alert(`Copied to clipboard: ${value}`);
+  // };
+
+  const handleDownloadRun = (run) => {
+    const formattedData = run.executedTestCases.map((test) => ({
+      TestRunId: run.testRunId,
+      ProjectName: run.projectName,
+      TotalTests: run.totalTests,
+      Passed: run.passed,
+      Failed: run.failed,
+      Blocked: run.blocked,
+      Skipped: run.skipped,
+      TestCaseId: test.testCaseId,
+      TestCaseName: test.testCaseName,
+      InputUrl: test.inputUrl,
+      Method: test.method,
+      Payload: test.payload,
+      ActualResponseCode: test.actualResponseCode,
+      Response: test.response,
+      Status: test.status,
+    }));
+    downloadExcel(formattedData, `Test_Run_${run.testRunId}`);
+  };
+
+  const handleDownloadAll = () => {
+    const allData = filteredRunData.flatMap((run) =>
+      run.executedTestCases.map((test) => ({
+        TestRunId: run.testRunId,
+        ProjectName: run.projectName,
+        TotalTests: run.totalTests,
+        Passed: run.passed,
+        Failed: run.failed,
+        Blocked: run.blocked,
+        Skipped: run.skipped,
+        TestCaseId: test.testCaseId,
+        TestCaseName: test.testCaseName,
+        InputUrl: test.inputUrl,
+        Method: test.method,
+        Payload: test.payload,
+        ActualResponseCode: test.actualResponseCode,
+        Response: test.response,
+        Status: test.status,
+      }))
+    );
+    downloadExcel(allData, `All_Test_Runs`);
   };
 
   return (
@@ -127,7 +165,7 @@ const RunTestCaseTable = () => {
         Executed Test Cases
       </h1>
       <div className="w-full h-px bg-gray-300 my-6" />
-      <div className="mb-6 flex items-center space-x-4">
+      {/* <div className="mb-6 flex items-center space-x-4 relative">
         <label htmlFor="project-select" className="font-semibold text-gray-900">
           Select Project:
         </label>
@@ -148,6 +186,52 @@ const RunTestCaseTable = () => {
             </option>
           ))}
         </select>
+
+        {filteredRunData.length > 0 && (
+          <div className="mb-6">
+            <button
+              className="bg-red-400 text-white font-bold py-2 px-4 rounded-md hover:bg-red-700"
+              onClick={handleDownloadAll}
+            >
+              Download All Runs
+            </button>
+          </div>
+        )}
+      </div> */}
+
+      <div className="mb-6 flex items-center space-x-4 relative">
+        <label htmlFor="project-select" className="font-semibold text-gray-900">
+          Select Project:
+        </label>
+        <select
+          id="project-select"
+          name="project"
+          value={selectedProject}
+          onChange={handleProjectChange}
+          className="p-2 border border-gray-300 rounded-md font-semibold text-gray-700"
+        >
+          <option value="">Choose a project</option>
+          {projects.map((project) => (
+            <option
+              key={project.id || project.projectName}
+              value={project.projectName}
+            >
+              {project.projectName}
+            </option>
+          ))}
+        </select>
+
+        {/* Positioned Button */}
+        {filteredRunData.length > 0 && (
+          <div className="absolute top-0 right-0 mb-6">
+            <button
+              className="bg-red-400 text-white font-bold py-2 px-4 rounded-md hover:bg-red-700"
+              onClick={handleDownloadAll}
+            >
+              Download All Runs
+            </button>
+          </div>
+        )}
       </div>
 
       {isFiltering ? (
@@ -191,6 +275,7 @@ const RunTestCaseTable = () => {
                   Blocked
                 </th>
                 <th className="p-3 text-center">Skipped</th>
+                <th className="p-3 text-center">Download</th>
               </tr>
             </thead>
             <tbody>
@@ -224,6 +309,14 @@ const RunTestCaseTable = () => {
                       {run.blocked}
                     </td>
                     <td className="p-3 font-bold text-center">{run.skipped}</td>
+                    <td className="p-3 text-center">
+                      <button
+                        onClick={() => handleDownloadRun(run)}
+                        className="text-blue-500 hover:text-blue-700"
+                      >
+                        Download
+                      </button>
+                    </td>
                   </tr>
                   {expandedRows[run.testRunId] && (
                     <tr key={`${run.testRunId}-expanded`}>
@@ -234,6 +327,9 @@ const RunTestCaseTable = () => {
                               <tr>
                                 <th className="p-2 text-center border-r border-gray-300">
                                   Test ID
+                                </th>
+                                <th className="p-2 text-center border-r border-gray-300">
+                                  Test Case Name
                                 </th>
                                 <th className="p-2 text-center border-r border-gray-300">
                                   Input Request URL
@@ -264,6 +360,11 @@ const RunTestCaseTable = () => {
                                   {/* Test Case ID */}
                                   <td className="p-2 font-bold text-center border-r border-gray-300">
                                     {test.testCaseId}
+                                  </td>
+
+                                  {/* Test Case Name */}
+                                  <td className="p-2 font-bold text-center border-r border-gray-300">
+                                    {test.testCaseName}
                                   </td>
 
                                   {/* Input URL */}
