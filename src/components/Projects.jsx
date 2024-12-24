@@ -137,7 +137,7 @@ const ProjectsPage = () => {
       )}
 
       {/* Projects Title */}
-      <div className="flex justify-between ">
+      <div className="inline-flex  justify-between ">
         <div className="text-left text-lg mt-8 ml-2 font-semibold text-gray-500">
           Your Saved Projects
         </div>

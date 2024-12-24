@@ -21,6 +21,8 @@ import PopupForm from "./components/PopupForm";
 import GenerateTestCaseTable from "./components/GenerateTestCaseTable";
 import TestData from "./Pages/TestData";
 import PerformanceTestForm from "./components/PerformanceTestsForm";
+import JsonFileProcessor from "./components/JsonFileProcessor";
+
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(
