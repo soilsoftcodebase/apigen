@@ -1,4 +1,6 @@
-const API_URL = "https://apigenbackend.soilsoft.ai:5001/api";
+//const API_URL = "https://apigenbackend.soilsoft.ai:5001/api";
+
+const API_URL = "https://localhost:7146/api";
 
 const Page_size = 25;
 // Function to create a new project
@@ -468,5 +470,43 @@ export async function getTestRunsByProject(projectName) {
     return data;
   } catch (err) {
     throw Error("Error retrieving test data", err);
+  }
+}
+export async function createProjectWithFile(formData) {
+  try {
+    const res = await fetch(`${API_URL}/ApiGen/Projects/upload`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.title || "Failed to create project with file upload");
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error("Error creating project with file:", err);
+    throw new Error("Error creating project with file");
+  }
+}
+export async function saveAndGenerateTestCasesWithFile(formData) {
+  try {
+    const res = await fetch(`${API_URL}/ApiGen/Projects/uploadAndGenerate`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.title || "Failed to save and generate test cases with file upload");
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error("Error saving and generating test cases with file:", err);
+    throw new Error("Error saving and generating test cases with file");
   }
 }
