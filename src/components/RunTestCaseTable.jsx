@@ -33,7 +33,7 @@ const RunTestCaseTable = () => {
     setLoading(true);
     try {
       const data = await getTestRunsByProject(projectName);
-      setFilteredRunData(data || []);
+      setFilteredRunData([{...data}]);
     } catch (error) {
       console.log("Failed to load test cases. Please try again later.", error);
     } finally {
