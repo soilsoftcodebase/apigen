@@ -1,6 +1,6 @@
-//const API_URL = "https://apigenbackend.soilsoft.ai:5001/api";
+const API_URL = "https://apigenbackend.soilsoft.ai:5001/api";
 
-const API_URL = "https://localhost:7146/api";
+// const API_URL = "https://localhost:7146/api";
 
 const Page_size = 25;
 // Function to create a new project
@@ -218,9 +218,20 @@ export async function updateTestData(projectName, updateData) {
 // Function to fetchSwaggerInfo processing for a project
 export async function fetchSwaggerInfo(baseUrl, version) {
   // Define possible paths based on the given base URL and version
+  const url = new URL(baseUrl);
+  const segments = url.pathname.trim('/').split('/');
+
+  // Extract version from the last segment
+  const versionFromUrl = segments.length > 0 ? segments[segments.length - 1] : '';
+
+  // Reconstruct base URL without the version
+  const SwaggerUrl = `${url.protocol}//${url.host}`;
+  
   const pathsToTry = [
     `${baseUrl.replace("/index.html", "")}/${version}/swagger.json`, // Path with version, e.g., /v2/swagger.json
     `${baseUrl}/swagger/${version}/swagger.json`, // Nested version path, e.g., /swagger/v2/swagger.json
+    `${baseUrl}/swagger.json`, // Default path, e.g., /swagger.json
+    `${SwaggerUrl}/swagger/${versionFromUrl || version}/swagger.json` 
   ];
 
   // Try each path until a successful fetch
