@@ -1,6 +1,6 @@
-const API_URL = "https://apigenbackend.soilsoft.ai:5001/api";
+//const API_URL = "https://apigenbackend.soilsoft.ai:5001/api";
 
- //const API_URL = "https://localhost:7146/api";
+ const API_URL = "https://localhost:7146/api";
 
 const Page_size = 25;
 // Function to create a new project
@@ -519,5 +519,62 @@ export async function saveAndGenerateTestCasesWithFile(formData) {
   } catch (err) {
     console.error("Error saving and generating test cases with file:", err);
     throw new Error("Error saving and generating test cases with file");
+  }
+}
+
+export async function deleteProjectById(projectId) {
+  try {
+      const res = await fetch(`${API_URL}/ApiGen/Projects/${projectId}`, {
+          method: "DELETE",
+      });
+
+      if (!res.ok) {
+          const errorData = await res.json();
+          console.error("Error response from server:", errorData);
+          throw Error(errorData.title || "Failed to delete project");
+      }
+
+      return true;
+  } catch (err) {
+      console.error("Error deleting project:", err);
+      throw Error("Error deleting project");
+  }
+}
+
+export async function deleteAllTestRunsByProjectId(projectId) {
+  try {
+      const res = await fetch(`${API_URL}/ApiGen/Projects/${projectId}/testrun`, {
+          method: "DELETE",
+      });
+
+      if (!res.ok) {
+          const errorData = await res.json();
+          console.error("Error response from server:", errorData);
+          throw Error(errorData.title || "Failed to delete test runs");
+      }
+
+      return true;
+  } catch (err) {
+      console.error("Error deleting test runs:", err);
+      throw Error("Error deleting test runs");
+  }
+}
+
+export async function deleteSingleTestRunById(testRunId) {
+  try {
+      const res = await fetch(`${API_URL}/ApiGen/Projects/testrun/${testRunId}`, {
+          method: "DELETE",
+      });
+
+      if (!res.ok) {
+          const errorData = await res.json();
+          console.error("Error response from server:", errorData);
+          throw Error(errorData.title || "Failed to delete test run");
+      }
+
+      return true;
+  } catch (err) {
+      console.error("Error deleting test run:", err);
+      throw Error("Error deleting test run");
   }
 }
