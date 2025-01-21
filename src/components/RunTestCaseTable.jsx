@@ -28,21 +28,26 @@ const RunTestCaseTable = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   
   const handleDelete = async (projectId) => {
-    setIsDeleting(true);
+    setIsDeleting(true); // Indicate deletion is in progress
     try {
       console.log(projectId);
-      await deleteAllTestRunsByProjectId(projectId);
-      console.log(projectId);
-      toast.success("All Test Runs deleted successfully!", { autoClose: 4000, theme: "light" });    } catch (err) {
+      // Uncomment the actual deletion API call
+       await deleteAllTestRunsByProjectId(projectId);
+      
+      toast.success("All Test Runs deleted successfully!", { autoClose: 4000, theme: "light" });
+  
+      // Refresh test case data for the current project
+      if (selectedProject) {
+        await handleProjectChange({ target: { value: selectedProject.projectName } });
+      }
+    } catch (err) {
       console.error("Failed to delete test runs:", err);
       toast.error("Failed to delete test runs!", { autoClose: 4000, theme: "light" });
-
     } finally {
-      setIsDeleting(false);
-      setShowPopup(false);
+      setIsDeleting(false); // Deletion process is complete
+      setShowPopup(false); // Close the popup
     }
   };
-  
 
 
   const handleDeleteTestRun = async (testRunId) => {
@@ -53,6 +58,8 @@ const RunTestCaseTable = () => {
     }
   
     setDeleteLoading(true); // Start the loader
+
+    console.log(testRunId);
     try {
       const isDeleted = await deleteSingleTestRunById(testRunId); // Call API
       if (isDeleted) {
@@ -61,6 +68,9 @@ const RunTestCaseTable = () => {
         );
         toast.success("Test Run deleted successfully!", { autoClose: 4000, theme: "light" });
       }
+      // if (selectedProject) {
+      //   await handleProjectChange({ target: { value: selectedProject.projectName } });
+      // }
     } catch (err) {
       console.error("Error deleting Test Run:", err);
       toast.error(err.message || "Failed to delete the Test Run.", { autoClose: 4000, theme: "light" });
@@ -107,18 +117,21 @@ const RunTestCaseTable = () => {
   }, [fetchProjectsAndRuns]);
 
   const handleProjectChange = async (e) => {
-    const projectName = e.target.value;
-    setSelectedProject(projectName);
-    setIsFiltering(true);
-
+    const projectName = e.target.value; // Get the selected project name from the dropdown
+    const project = projects.find((p) => p.projectName === projectName); // Find the corresponding project object
+  
+    setSelectedProject(project); // Update the state with the full project object
+    setIsFiltering(true); // Indicate that filtering is in progress
+  
     if (!projectName) {
-      setFilteredRunData([]);
+      setFilteredRunData([]); // Clear filtered data if no project is selected
     } else {
-      await fetchTestCases(projectName);
+      await fetchTestCases(projectName); // Fetch test cases for the selected project
     }
-    setIsFiltering(false);
+  
+    setIsFiltering(false); // Filtering is complete
   };
-
+  
   const toggleRow = (runId) => {
     setExpandedRows((prevState) => ({
       ...prevState,
@@ -265,26 +278,26 @@ const RunTestCaseTable = () => {
       </div> */}
 
       <div className="mb-6 flex items-center space-x-4 relative">
-        <label htmlFor="project-select" className="font-semibold text-gray-900">
-          Select Project:
-        </label>
-        <select
-          id="project-select"
-          name="project"
-          value={selectedProject}
-          onChange={handleProjectChange}
-          className="p-2 border border-gray-300 rounded-md font-semibold text-gray-700"
-        >
-          <option value="">Choose a project</option>
-          {projects.map((project) => (
-            <option
-              key={project.id || project.projectName}
-              value={project.projectName}
-            >
-              {project.projectName}
-            </option>
-          ))}
-        </select>
+      <label htmlFor="project-select" className="font-semibold text-gray-900">
+    Select Project:
+  </label>
+  <select
+    id="project-select"
+    name="project"
+    value={selectedProject?.projectName || ""}
+    onChange={handleProjectChange}
+    className="p-2 border border-gray-300 rounded-md font-semibold text-gray-700"
+  >
+    <option value="">Choose a project</option>
+    {projects.map((project) => (
+      <option
+        key={project.id || project.projectName}
+        value={project.projectName}
+      >
+        {project.projectName}
+      </option>
+    ))}
+  </select>
 
         {/* Positioned Button */}
         {filteredRunData.length > 0 && (
@@ -326,7 +339,7 @@ const RunTestCaseTable = () => {
                 className={`${
                   isDeleting ? "bg-red-400" : "bg-red-600 hover:bg-red-700"
                 } text-white py-2 px-4 rounded-md`}
-                // onClick={handleDelete(selectedProject.projectId)}
+                onClick={()=>handleDelete(selectedProject.projectId)}
                 disabled={isDeleting}
               >
                 {isDeleting ? "Deleting..." : "Confirm"}
@@ -450,7 +463,8 @@ const RunTestCaseTable = () => {
     height="24"
     fill="none"
     viewBox="0 0 24 24"
-    onClick={(e) => { e.stopPropagation(); handleDeleteTestRun(run.testCaseId); }} // Pass the testRunId dynamically
+    onClick={(e) => { e.stopPropagation(); handleDeleteTestRun(run.testRunId); }}
+    // Pass the testRunId dynamically
   >
     <path
       stroke="currentColor"
