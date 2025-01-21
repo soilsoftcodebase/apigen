@@ -64,7 +64,7 @@ const Dashboard = () => {
 
           <div className="bg-gray-100 border-l-4 border-green-500 p-6 rounded-lg shadow hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300">
             <h3 className="text-xl font-semibold text-green-600">
-              Total Tests
+              Test Cases Generated
             </h3>
             <p className="text-4xl font-bold text-gray-800 mt-2">
               {summaryData?.totalTestCases || 0}

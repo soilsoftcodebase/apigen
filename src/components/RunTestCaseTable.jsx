@@ -3,6 +3,8 @@ import { ClipboardIcon } from "@heroicons/react/24/solid";
 import {
   getAllProjects,
   getTestRunsByProject,
+  deleteSingleTestRunById,
+  deleteAllTestRunsByProjectId,
 } from "../Services/apiGenServices";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
@@ -18,6 +20,65 @@ const RunTestCaseTable = () => {
   const [selectedPayload, setSelectedPayload] = useState(null);
   const [isFiltering, setIsFiltering] = useState(false);
   const [loading, setLoading] = useState(false);
+  // const [deleteProject, setDeleteProject] = useState(null); // For delete confirmation popup
+  // const [popupVisible, setPopupVisible] = useState(false); // For delete confirmation popup
+  const [deleteLoading, setDeleteLoading] = useState(false); // For delete confirmation popup
+  const [testRuns, setTestRuns] = useState([]); // For delete confirmation popup
+  const [showPopup, setShowPopup] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  const handleDelete = async (projectId) => {
+    setIsDeleting(true);
+    try {
+      console.log(projectId);
+      await deleteAllTestRunsByProjectId(projectId);
+      console.log(projectId);
+      toast.success("All Test Runs deleted successfully!", { autoClose: 4000, theme: "light" });    } catch (err) {
+      console.error("Failed to delete test runs:", err);
+      toast.error("Failed to delete test runs!", { autoClose: 4000, theme: "light" });
+
+    } finally {
+      setIsDeleting(false);
+      setShowPopup(false);
+    }
+  };
+  
+
+
+  const handleDeleteTestRun = async (testRunId) => {
+    if (!testRunId) {
+      console.error(testRunId);
+      toast.error("No test run selected for deletion!", { autoClose: 4000, theme: "light" });
+      return;
+    }
+  
+    setDeleteLoading(true); // Start the loader
+    try {
+      const isDeleted = await deleteSingleTestRunById(testRunId); // Call API
+      if (isDeleted) {
+        setTestRuns((prevTestRuns) =>
+          prevTestRuns.filter((run) => run.runId !== testRunId) // Remove run from UI
+        );
+        toast.success("Test Run deleted successfully!", { autoClose: 4000, theme: "light" });
+      }
+    } catch (err) {
+      console.error("Error deleting Test Run:", err);
+      toast.error(err.message || "Failed to delete the Test Run.", { autoClose: 4000, theme: "light" });
+    } finally {
+      setDeleteLoading(false); // Stop the loader
+    }
+  };
+  
+  
+    // const openDeletePopup = (project) => {
+    //   setDeleteProject(project);
+    //   setPopupVisible(true);
+    // };
+  
+    // const closeDeletePopup = () => {
+    //   setDeleteProject(null);
+    //   setPopupVisible(false);
+    // };
 
   const fetchProjectsAndRuns = useCallback(async () => {
     try {
@@ -109,11 +170,15 @@ const RunTestCaseTable = () => {
     XLSX.writeFile(workbook, `${filename}.xlsx`);
   };
 
-  // const handleCopyFeedback = (value, id) => {
-  //   handleCopy(value, id);
-  //   // Trigger feedback for the copied value
-  //   alert(`Copied to clipboard: ${value}`);
-  // };
+  const handleCopyFeedback = (value, id) => {
+    handleCopy(value, id);
+    // Trigger feedback for the copied value
+    toast.success(`Copied to clipboard: ${value}`, {
+            // position: toast.POSITION.TOP_RIGHT,
+            autoClose: 4000,
+            theme: "light",
+          });
+  };
 
   const handleDownloadRun = (run) => {
     const formattedData = run.executedTestCases.map((test) => ({
@@ -225,11 +290,52 @@ const RunTestCaseTable = () => {
         {filteredRunData.length > 0 && (
           <div className="absolute top-0 right-0 mb-6">
             <button
-              className="bg-red-400 text-white font-bold py-2 px-4 rounded-md hover:bg-red-700"
+              className="bg-green-600 text-white font-bold py-2 px-4 rounded-md hover:bg-green-700 mr-5"
               onClick={handleDownloadAll}
             >
               Download All Runs
             </button>
+            <button
+        className="bg-red-600 text-white font-bold py-2 px-4 rounded-md hover:bg-red-700"
+        onClick={() => setShowPopup(true)}
+      >
+        Delete All Runs
+      </button>
+            <div>
+     
+
+      {showPopup && (
+        <div className="fixed inset-0 bg-gray-700 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 shadow-lg">
+            <h2 className="text-lg font-semibold text-gray-800">
+              Confirm Deletion
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Are you sure you want to delete all test runs? This action cannot
+              be undone.
+            </p>
+            <div className="mt-4 flex justify-end space-x-4">
+              <button
+                className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400"
+                onClick={() => setShowPopup(false)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button
+                className={`${
+                  isDeleting ? "bg-red-400" : "bg-red-600 hover:bg-red-700"
+                } text-white py-2 px-4 rounded-md`}
+                // onClick={handleDelete(selectedProject.projectId)}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
           </div>
         )}
       </div>
@@ -244,8 +350,8 @@ const RunTestCaseTable = () => {
           </div>
         </div>
       ) : filteredRunData.length > 0 ? (
-        <div className="overflow-auto rounded-lg shadow max-w-full">
-          <table className="min-w-full w-full bg-white border-collapse">
+        <div className="overflow-auto rounded-lg shadow min-w-full">
+          <table className="min-w-full table-auto bg-white border-collapse">
             <thead className="bg-gradient-to-r from-cyan-950 to-sky-900 text-white border-b border-gray-300">
               <tr>
                 <th className="p-3 text-center border-r border-gray-200">
@@ -274,8 +380,8 @@ const RunTestCaseTable = () => {
                 <th className="p-3 text-center border-r border-gray-200">
                   Blocked
                 </th>
-                <th className="p-3 text-center">Skipped</th>
-                <th className="p-3 text-center">Download</th>
+                <th className="p-3 text-center border-r border-gray-200">Skipped</th>
+                <th className="p-3 text-center  ">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -310,19 +416,64 @@ const RunTestCaseTable = () => {
                     </td>
                     <td className="p-3 font-bold text-center">{run.skipped}</td>
                     <td className="p-3 text-center">
-                      <button
-                        onClick={() => handleDownloadRun(run)}
-                        className="text-blue-500 hover:text-blue-700"
-                      >
-                        Download
-                      </button>
+
+                      <div className="flex justify-center items-center space-x-4">
+                      <div className="relative group">
+                      <svg
+                       className="w-[24px] h-[24px] text-gray-800 dark:text-green-700 mr-5"
+                       aria-hidden="true"
+                       xmlns="http://www.w3.org/2000/svg"
+                       width="24"
+                        height="24"
+                       fill="none"
+                      viewBox="0 0 24 24"
+                       onClick={() => handleDownloadRun(run)}
+                        >
+                          <path
+                          stroke="currentColor"
+                           strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="1.5"
+                           d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"
+                          />
+                        </svg>
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-3 py-1 bg-gray-800 text-white text-sm rounded shadow-lg group-hover:block">
+                      Download Run
+                      </div>
+</div>
+<div className="relative group">
+  <svg
+    className="w-[24px] h-[24px] text-gray-800 dark:text-red-700 cursor-pointer"
+    aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    fill="none"
+    viewBox="0 0 24 24"
+    onClick={(e) => { e.stopPropagation(); handleDeleteTestRun(run.testCaseId); }} // Pass the testRunId dynamically
+  >
+    <path
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.5"
+      d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
+    />
+  </svg>
+
+  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-3 py-1 bg-gray-800 text-white text-sm rounded shadow-lg group-hover:block">
+    Delete Run
+  </div>
+</div>
+                      </div>
+
                     </td>
                   </tr>
                   {expandedRows[run.testRunId] && (
                     <tr key={`${run.testRunId}-expanded`}>
-                      <td colSpan="8" className="p-2 bg-gray-50">
-                        <div className="overflow-auto rounded-lg shadow-inner bg-white">
-                          <table className="min-w-full bg-white border border-gray-300">
+                      <td colSpan="10" className="p-2 bg-gray-50">
+                        <div className="overflow-auto  rounded-lg shadow-inner bg-white">
+                          <table className="w-full bg-white border border-gray-300">
                             <thead className="bg-gradient-to-r from-cyan-700 to-sky-800 text-white">
                               <tr>
                                 <th className="p-2 text-center border-r border-gray-300">
@@ -341,11 +492,12 @@ const RunTestCaseTable = () => {
                                   Payload
                                 </th>
                                 <th className="p-2 text-center border-r border-gray-300">
-                                  Actual Response
+                                  Response Code
                                 </th>
                                 <th className="p-2 text-center border-r border-gray-300">
                                   Response
                                 </th>
+                                
                                 <th className="p-2 text-center">Status</th>
                               </tr>
                             </thead>

@@ -10,7 +10,7 @@ const Header = () => {
 
   return (
     <div
-      className="fixed bg-gradient-to-br from-gray-50 to-gray-100 w-full flex z-50"
+      className="fixed bg-gradient-to-br from-gray-50 to-gray-100 w-full flex z-50 "
       style={{ height: "125px" }}
     >
       <header
