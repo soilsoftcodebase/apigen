@@ -12,7 +12,7 @@ const Tests = () => {
       >
         <div className="p-8 rounded-lg ">
           <GenerateTestCaseTable />
-          <TestCasesTable />
+{/*           <TestCasesTable /> */}
         </div>
       </div>
     </div>
