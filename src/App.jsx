@@ -22,7 +22,7 @@ import GenerateTestCaseTable from "./components/GenerateTestCaseTable";
 import TestData from "./Pages/TestData";
 import PerformanceTestForm from "./components/PerformanceTestsForm";
 import JsonFileProcessor from "./components/JsonFileProcessor";
-
+import TestCasesTable from "./components/GenerateTestCaseTable";
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(

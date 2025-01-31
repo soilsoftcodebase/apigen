@@ -1,5 +1,6 @@
 // import React from "react";
 import GenerateTestCaseTable from "../components/GenerateTestCaseTable";
+import TestCasesTable from "../components/TestCaseTable";
 // import Header from "../components/Header";
 
 const Tests = () => {
@@ -9,8 +10,9 @@ const Tests = () => {
         className="page-background min-h-screen "
         style={{ paddingTop: "150px" }} // Adjust for header height + spacing
       >
-        <div className="p-8 rounded-lg shadow-lg bg-white">
+        <div className="p-8 rounded-lg ">
           <GenerateTestCaseTable />
+          <TestCasesTable />
         </div>
       </div>
     </div>

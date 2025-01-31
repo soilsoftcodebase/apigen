@@ -160,17 +160,28 @@ const ProjectsPage = () => {
             className="bg-white p-6 rounded-xl shadow-lg transform hover:-translate-y-2 hover:shadow-2xl transition duration-300 cursor-pointer"
             onClick={() => handleCardClick(project)}
           >
-            <h3 className="text-lg font-semibold text-blue-700 mb-1">
+            {/* ✅ Project Name Wrapping Fixed */}
+            <h3
+              className="text-lg font-semibold text-blue-700 mb-10"
+              style={{
+                wordWrap: "break-word", // Ensures long text wraps
+                wordBreak: "break-word", // Adds compatibility
+                maxWidth: "100%", // Ensures it fits within the card
+              }}
+            >
               {project.projectName}
             </h3>
+
             <div className="flex items-center text-sm text-gray-600 mb-4">
               <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
                 Swagger {project.swaggerVersion}
               </span>
             </div>
+
             <p className="text-gray-700 mb-2">
               <strong>Swagger URL:</strong> {project.swaggerUrl}
             </p>
+
             <p className="text-gray-600 mt-2 flex items-center">
               <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
               Active Project

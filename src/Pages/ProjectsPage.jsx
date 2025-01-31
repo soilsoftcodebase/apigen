@@ -164,7 +164,7 @@
 //             <p className="text-gray-600 mt-2 flex items-center">
 //               <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
 //               Active Project
-//             </p>  
+//             </p>
 //           </div>
 //         ))}
 //       </div>
@@ -206,7 +206,6 @@
 // };
 
 // export default ProjectsPage;
-
 
 import { useState, useEffect } from "react";
 import PopupForm from "../components/PopupForm";
@@ -258,7 +257,9 @@ const ProjectsPage = () => {
         const isDeleted = await deleteProjectById(deleteProject.projectId);
         if (isDeleted) {
           setProjects((prevProjects) =>
-            prevProjects.filter((project) => project.projectId !== deleteProject.projectId)
+            prevProjects.filter(
+              (project) => project.projectId !== deleteProject.projectId
+            )
           );
           setPopupVisible(false);
           setDeleteProject(null); // Reset after delete
@@ -338,12 +339,7 @@ const ProjectsPage = () => {
         </button>
       </div>
 
-      {showForm && (
-        <PopupForm
-          showForm={showForm}
-          setShowForm={setShowForm}
-        />
-      )}
+      {showForm && <PopupForm showForm={showForm} setShowForm={setShowForm} />}
 
       <div className="text-left mb-8 text-lg font-semibold text-gray-500">
         Your Saved Projects
@@ -355,38 +351,63 @@ const ProjectsPage = () => {
         {projects.map((project) => (
           <div
             key={project.projectId || project.projectName}
-            className="bg-white p-6 rounded-xl shadow-lg transform hover:-translate-y-2 hover:shadow-2xl transition duration-300 cursor-pointer"
+            className="bg-white p-6 pr-16 rounded-xl shadow-lg transform hover:-translate-y-2 hover:shadow-2xl transition duration-300 cursor-pointer  overflow-hidden"
             onClick={() => handleCardClick(project)}
           >
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-blue-700 mb-1">
-                {project.projectName}
-              </h3>
-              <button
-                className="text-red-400 hover:text-red-700"
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevent triggering card click
-                  openDeletePopup(project);
+            {/* Delete Button */}
+            <button
+              className="absolute top-6 right-6 text-red-400 hover:text-red-700 z-10"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent triggering card click
+                openDeletePopup(project);
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                className="w-6 h-6"
+              >
+                <path d="M9 3h6a1 1 0 0 1 1 1v1h4a1 1 0 1 1 0 2h-1v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7H4a1 1 0 1 1 0-2h4V4a1 1 0 0 1 1-1Zm1 2v1h4V5h-4ZM7 7v12h10V7H7Zm2 3h2v7H9v-7Zm4 0h2v7h-2v-7Z" />
+              </svg>
+            </button>
+
+            {/* Project Name and Version */}
+            <div className="mb-4">
+              <h3
+                className="text-lg font-semibold text-blue-700 overflow-hidden text-ellipsis"
+                style={{
+                  display: "-webkit-box",
+                  WebkitBoxOrient: "vertical",
+                  WebkitLineClamp: 2, // Max of 2 lines
+                  overflow: "hidden",
+                  paddingRight: "2.5rem", // Ensures space for delete button
                 }}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  className="w-6 h-6"
-                >
-                  <path d="M9 3h6a1 1 0 0 1 1 1v1h4a1 1 0 1 1 0 2h-1v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7H4a1 1 0 1 1 0-2h4V4a1 1 0 0 1 1-1Zm1 2v1h4V5h-4ZM7 7v12h10V7H7Zm2 3h2v7H9v-7Zm4 0h2v7h-2v-7Z" />
-                </svg>
-              </button>
+                {project.projectName}
+              </h3>
+              <div className="text-sm text-gray-600 mt-2 flex items-center space-x-2">
+                <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+                  Swagger {project.swaggerVersion}
+                </span>
+              </div>
             </div>
-            <div className="flex items-center text-sm text-gray-600 mb-4">
-              <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
-                Swagger {project.swaggerVersion}
-              </span>
-            </div>
-            <p className="text-gray-700 mb-2">
+
+            {/* Swagger URL */}
+            <p
+              className="text-gray-700 mb-2 text-ellipsis"
+              style={{
+                display: "-webkit-box",
+                WebkitBoxOrient: "vertical",
+                WebkitLineClamp: 2, // Max of 2 lines
+                overflow: "hidden",
+                paddingRight: "2.5rem", // Ensures space for delete button
+              }}
+            >
               <strong>Swagger URL:</strong> {project.swaggerUrl}
             </p>
+
+            {/* Active Project Indicator */}
             <p className="text-gray-600 mt-2 flex items-center">
               <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
               Active Project
@@ -404,11 +425,21 @@ const ProjectsPage = () => {
             className="bg-white w-3/4 max-w-lg p-6 rounded shadow-lg relative"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-lg font-bold mb-4">
+            {/* <h2 className="text-lg font-bold mb-4">
               {selectedProject.projectName}
-            </h2>
+            </h2> */}
+            <h3
+              className="text-lg font-bold text-blue-700 mb-10"
+              style={{
+                wordWrap: "break-word", // Ensures long text wraps
+                wordBreak: "break-word", // Adds compatibility
+                maxWidth: "100%", // Ensures it fits within the card
+              }}
+            >
+              {selectedProject.projectName}
+            </h3>
             <div className="flex items-center text-sm text-gray-600 mb-4">
-              <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+              <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full ">
                 Swagger {selectedProject.swaggerVersion}
               </span>
             </div>
@@ -453,26 +484,21 @@ const ProjectsPage = () => {
                 Cancel
               </button>
               <button
-  className={`px-4 py-2 rounded text-white flex items-center justify-center ${
-    deleteLoading
-      ? 'bg-gray-500 cursor-not-allowed'
-      : 'bg-red-500 hover:bg-red-600'
-  }`}
-  onClick={handleDelete}
-  disabled={deleteLoading}
->
-  {/* {deleteLoading ? (
+                className={`px-4 py-2 rounded text-white flex items-center justify-center ${
+                  deleteLoading
+                    ? "bg-gray-500 cursor-not-allowed"
+                    : "bg-red-500 hover:bg-red-600"
+                }`}
+                onClick={handleDelete}
+                disabled={deleteLoading}
+              >
+                {/* {deleteLoading ? (
     <div className="w-5 h-5 border-2 border-t-2 border-gray-200 rounded-full animate-spin"></div>
   ) : (
     'Delete'
   )} */}
-   {deleteLoading ? "Deleting..." : "Confirm"}
-</button>
-
-
-
-
-
+                {deleteLoading ? "Deleting..." : "Confirm"}
+              </button>
             </div>
           </div>
         </div>

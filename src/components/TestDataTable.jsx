@@ -117,7 +117,13 @@ const TestDataTable = () => {
             name="project-select"
             value={selectedProject}
             onChange={(e) => setSelectedProject(e.target.value)}
-            className="p-2 border border-gray-300 rounded bg-white focus:ring focus:ring-blue-500 font-semibold text-gray-700"
+            className="p-2 border rounded w-full sm:w-auto focus:ring-2 focus:ring-blue-500 font-semibold truncate"
+            style={{
+              maxWidth: "300px", // Set a fixed maximum width for the dropdown
+              overflow: "hidden", // Prevent overflowing text
+              textOverflow: "ellipsis", // Add ellipsis for long text
+              whiteSpace: "nowrap", // Prevent text from wrapping to the next line
+            }}
           >
             <option value="">Choose a project</option>
             {projects.map((project) => (
@@ -218,7 +224,7 @@ const TestDataTable = () => {
         </div>
       ) : (
         <div className="text-center mt-4 font-bold text-gray-600 text-lg">
-          Please select a project to display Test data.
+          Please select a project First !!
         </div>
       )}
     </div>
