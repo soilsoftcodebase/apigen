@@ -278,7 +278,10 @@
 
 // export default EnhancedExpandedTable;
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import * as XLSX from "xlsx";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   ChevronDown,
   ChevronRight,
@@ -289,7 +292,17 @@ import {
   Filter,
   Database,
   TestTubeDiagonal,
+  PlusCircle,
+  PlayCircle,
+  Download,
 } from "lucide-react";
+import {
+  getTestCases,
+  getAllProjects,
+  RunallTestCases,
+  // getTestsByProjectName,
+  RunSelectedTestCase,
+} from "../Services/apiGenServices";
 
 const mockData = [
   {
@@ -387,6 +400,113 @@ const Table = () => {
   const [searchEndpoint, setSearchEndpoint] = useState("");
   const [selectedMethod, setSelectedMethod] = useState("");
   const [selectedTestType, setSelectedTestType] = useState("");
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState([]);
+  const [testCases, setTestCases] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showFormPopup, setShowFormPopup] = useState(false);
+  const [selectedRows, setSelectedRows] = useState([]); // Track selected rows
+  const [runningTests, setRunningTests] = useState(false);
+  useEffect(() => {
+    const fetchAllProjects = async () => {
+      try {
+        setLoading(true);
+        const projects = await getAllProjects();
+        setProjects(projects || []);
+      } catch (error) {
+        console.log("Failed to load projects. Please try again later.", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAllProjects();
+  }, []);
+  const handleProjectChange = (e) => {
+    setSelectedProject(e.target.value);
+    setCurrentPage(1);
+    setTestCases([]);
+  };
+
+  const handleSelectRow = (testCaseId) => {
+    setSelectedRows(
+      (prev) =>
+        prev.includes(testCaseId)
+          ? prev.filter((id) => id !== testCaseId) // Deselect if already selected
+          : [...prev, testCaseId] // Add to selected rows if not selected
+    );
+  };
+
+  const handleSelectAllRows = (isChecked) => {
+    if (isChecked) {
+      const allIds = testCases.map((testCase) => testCase.testCaseId);
+      setSelectedRows(allIds);
+    } else {
+      setSelectedRows([]);
+    }
+  };
+  const handleRunTestCases = () => {
+    if (selectedRows.length === 0) {
+      RunallTestCases();
+    } else {
+      RunSelectedTestCase();
+    }
+  };
+  // Download all test cases as an Excel file
+  const downloadAllTestCases = async () => {
+    if (!selectedProject) {
+      // alert("Please select a project first.");
+      toast.success("Please select a project first.", {
+        // position: toast.POSITION.TOP_RIGHT,
+        autoClose: 4000,
+        theme: "light",
+      });
+      return;
+    }
+
+    try {
+      let allTestCases = [];
+      let currentPage = 1;
+      let totalPages = 1;
+
+      do {
+        const data = await getTestCases(selectedProject, currentPage);
+        allTestCases = allTestCases.concat(data.testCases || []);
+        totalPages = data.totalPages || 1;
+        currentPage++;
+      } while (currentPage <= totalPages);
+
+      if (allTestCases.length === 0) {
+        alert("No test cases found for the selected project.");
+        toast.warn("No test cases found for the selected project.", {
+          // position: toast.POSITION.TOP_RIGHT,
+          autoClose: 4000,
+          theme: "light",
+        });
+        return;
+      }
+
+      const worksheet = XLSX.utils.json_to_sheet(allTestCases);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "TestCases");
+      XLSX.writeFile(workbook, `TestCases_${selectedProject}.xlsx`);
+
+      // alert("All test cases downloaded successfully.");
+      toast.success("All test cases downloaded successfully.", {
+        // position: toast.POSITION.TOP_RIGHT,
+        autoClose: 4000,
+        theme: "light",
+      });
+    } catch (error) {
+      console.error("Error downloading all test cases:", error);
+      alert("An error occurred while downloading the test cases.");
+      toast.error("An error occurred while downloading the test cases.", {
+        // position: toast.POSITION.TOP_RIGHT,
+        autoClose: 4000,
+        theme: "light",
+      });
+    }
+  };
 
   const filteredData = useMemo(() => {
     return mockData.filter((row) => {
@@ -443,34 +563,128 @@ const Table = () => {
   return (
     <div className="w-full overflow-hidden  rounded-xl shadow-lg border border-gray-200">
       {/* Main Header */}
-      <div className="bg-gradient-to-r from-cyan-950 to-sky-900 px-8 py-6">
+      <div className="bg-gradient-to-r from-cyan-950 to-sky-900 px-8 py-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
-            <TestTubeDiagonal className="w-8 h-8 text-white" />
+            <TestTubeDiagonal className="w-12 h-12 text-white mb-6" />
             <div>
-              <h2 className="text-2xl font-bold text-white mb-1">
+              <h2 className="text-3xl font-bold text-white mb-1">
                 Generated Test Cases
               </h2>
-              <p className="text-blue-100 text-sm">
-                {/* {selectedProject?.projectName || "Select a project to view"} */}
-                Selected Project Name
-              </p>
+              {/* <p className="text-blue-100 text-sm">
+                {selectedProject?.projectName || "Select a project to view"}
+                Selected Project Name</p> */}
+              <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
+                <select
+                  id="project-select"
+                  name="project"
+                  value={selectedProject || ""}
+                  onChange={handleProjectChange}
+                  className="h-8 bg-transparent border border-blue-400/20 w-full rounded-lg px-2 pr-10 text-lg text-white focus:outline-none focus:ring-2 focus:ring-white/30 truncate  focus:bg-white/10 "
+                  style={{
+                    maxWidth: "300px", // Set a fixed maximum width for the dropdown
+                    overflow: "hidden", // Prevent overflowing text
+                    textOverflow: "ellipsis", // Add ellipsis for long text
+                    whiteSpace: "nowrap", // Prevent text from wrapping to the next line
+                  }}
+                >
+                  <option value="" disabled>
+                    {projects.length > 0
+                      ? "Choose a project"
+                      : "No projects available"}
+                  </option>
+                  {projects.map((project, index) => (
+                    <option
+                      key={project.id || index}
+                      value={project.id}
+                      className="text-gray-800"
+                    >
+                      {project.projectName}
+                    </option>
+                  ))}
+                </select>
+
+                {selectedProject && (
+                  <div className="flex justify-around items-center space-x-4">
+                    {/* <div className="flex items-center space-x-48 sm:mt-0"> */}
+                    <div className="relative group bottom-11">
+                      <div className="w-20 h-12 bg-white/10 rounded-full border-blue-400/20 backdrop-blur-sm flex flex-col justify-center items-center shadow-sm ml-5">
+                        <span className="text-white font-bold text-2xl ">
+                          {stats.total}20
+                        </span>
+                        {/* <span className="text-blue-100 text-xs ">Tests</span> */}
+                      </div>
+
+                      {/* Tooltip */}
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 ml-2 w-max bg-gray-800 text-white text-xs px-3 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-md">
+                        Total Test Cases
+                      </div>
+                    </div>
+
+                    <div className=" flex items-center space-x-5">
+                      {/* Add New Test Case Button */}
+                      <div className=" flex justify-end gap-5">
+                        {/* Add Test Case Button */}
+                        <button
+                          className="flex items-center justify-center w-full gap-2  bg-white/10 border border-blue-400/20 text-white font-bold py-1 px-6 rounded-lg shadow-md hover:bg-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                          onClick={() => setShowFormPopup(true)}
+                          disabled={!selectedProject}
+                        >
+                          <PlusCircle className="w-8 h-8" />
+                          Add Test Case
+                        </button>
+
+                        {/* Run Test Cases Button */}
+                        <button
+                          className="flex items-center justify-center w-full gap-2  bg-white/10 border border-blue-400/20 text-white font-bold py-1 px-6 rounded-lg shadow-md hover:bg-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                          onClick={handleRunTestCases}
+                          disabled={runningTests || !selectedProject}
+                        >
+                          <PlayCircle className="w-8 h-8" />
+                          {runningTests
+                            ? "Running..."
+                            : selectedRows.length === 0
+                            ? "Run All Test Cases"
+                            : `Run (${selectedRows.length}) Test Cases`}
+                        </button>
+                      </div>
+
+                      {/* Download All Button */}
+                      <div className="relative group">
+                        <button
+                          className="flex items-center justify-center bg-white/10 border border-blue-400/20 text-white font-bold p-3 rounded-full shadow-md hover:bg-white/30  transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                          onClick={downloadAllTestCases}
+                          disabled={!selectedProject}
+                        >
+                          <Download className="w-5 h-5" />
+                        </button>
+
+                        {/* Tooltip */}
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max bg-gray-800 text-white text-xs px-3 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-md">
+                          Download All Test Cases
+                        </div>
+                      </div>
+                    </div>
+                    {/* </div> */}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
+          {/* <div className="flex items-center space-x-4">
             <div className="px-4 py-2 bg-white/10 rounded-lg backdrop-blur-sm">
               <span className="text-white font-medium text-lg">
                 {stats.total}
               </span>
               <span className="text-blue-100 ml-2">Total Test Cases</span>
             </div>
-            {/* <div className="px-4 py-2 bg-white/10 rounded-lg backdrop-blur-sm">
+            <div className="px-4 py-2 bg-white/10 rounded-lg backdrop-blur-sm">
               <span className="text-white font-medium text-lg">
                 {stats.filtered}
               </span>
               <span className="text-blue-100 ml-2">Filtered Results</span>
-            </div> */}
-          </div>
+            </div>
+          </div> */}
         </div>
 
         {/* Search and Filters */}
@@ -576,7 +790,19 @@ const Table = () => {
         <table className="w-full">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
+              <th className="px-8 py-4 text-left text-sm font-semibold uppercase text-gray-600">
+                <input
+                  type="checkbox"
+                  onChange={(e) => handleSelectAllRows(e.target.checked)}
+                  checked={
+                    selectedRows.length === testCases.length &&
+                    testCases.length > 0
+                  }
+                  className="w-5 h-5 text-sky-600 border-gray-300 rounded focus:ring-blue-200 focus:ring-2 transition-all duration-300"
+                />
+              </th>
               <th className="px-6 py-4 text-left w-16"></th>
+
               <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-600">
                 Endpoint
               </th>
@@ -586,9 +812,7 @@ const Table = () => {
               <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-600">
                 Test Count
               </th>
-              {/* <th className="px-6 py-4 text-left text-sm font-semibold uppercase text-gray-600">
-                Status
-              </th> */}
+
               <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-600">
                 Last Generated
               </th>
@@ -604,7 +828,20 @@ const Table = () => {
                   onMouseEnter={() => setHoveredRow(row.id)}
                   onMouseLeave={() => setHoveredRow(null)}
                 >
-                  <td className="px-6 py-4">
+                  <td className="px-8 py-4">
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        className="w-5 h-5 text-sky-600 border-gray-300 rounded focus:ring-blue-200 focus:ring-2 transition-all duration-300"
+
+                        // checked={selectedRows.includes(row.original.testCaseId)}
+                        // onChange={() =>
+                        //   handleSelectRow(row.original.testCaseId)
+                        // }
+                      />
+                    </div>
+                  </td>
+                  <td className="px-0 py-4">
                     <button
                       onClick={() => toggleRow(row.id)}
                       className={`p-2 rounded-lg transition-colors ${
@@ -622,7 +859,7 @@ const Table = () => {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center">
-                      <span className="text-base font-medium text-gray-900">
+                      <span className="text-base font-semibold text-gray-900">
                         {row.endpoint}
                       </span>
                     </div>
@@ -661,12 +898,12 @@ const Table = () => {
                   <tr>
                     <td colSpan={6} className="px-8 py-6 bg-gray-50">
                       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                        <div className="bg-gradient-to-r from-gray-50 to-white px-6 py-4 border-b border-gray-200">
+                        <div className="bg-gradient-to-r from-cyan-950 to-sky-900 px-6 py-4 border-b border-gray-200">
                           <div className="flex justify-between items-center">
-                            <h3 className="text-lg font-semibold text-gray-800">
+                            <h3 className="text-lg font-semibold text-white">
                               Test Cases
                             </h3>
-                            <span className="text-sm text-gray-500">
+                            <span className="text-sm text-gray-100">
                               {row.testCases.length} cases
                             </span>
                           </div>
@@ -675,26 +912,26 @@ const Table = () => {
                           <table className="w-full">
                             <thead>
                               <tr className="bg-gray-50">
-                                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
                                   ID
                                 </th>
-                                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
                                   Name
                                 </th>
-                                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
                                   Request URL
                                 </th>
-                                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
                                   Payload
                                 </th>
-                                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
                                   Response
                                 </th>
-                                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
                                   Type
                                 </th>
-                                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
-                                  Status
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
+                                  Steps
                                 </th>
                               </tr>
                             </thead>
@@ -738,8 +975,8 @@ const Table = () => {
                                   </td>
                                   <td className="px-6 py-4">
                                     <div className="flex items-center space-x-2">
-                                      {getStatusIcon(testCase.status)}
-                                      <span
+                                      {/* {getStatusIcon(testCase.status)} */}
+                                      {/* <span
                                         className={`text-sm font-medium ${
                                           testCase.status === "Passed"
                                             ? "text-emerald-600"
@@ -747,7 +984,7 @@ const Table = () => {
                                         }`}
                                       >
                                         {testCase.status}
-                                      </span>
+                                      </span> */}
                                     </div>
                                   </td>
                                 </tr>

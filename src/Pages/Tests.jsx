@@ -11,8 +11,8 @@ const Tests = () => {
         style={{ paddingTop: "150px" }} // Adjust for header height + spacing
       >
         <div className="p-8 rounded-lg ">
-          <GenerateTestCaseTable />
-{/*           <TestCasesTable /> */}
+          {/* <GenerateTestCaseTable /> */}
+          <TestCasesTable />
         </div>
       </div>
     </div>
