@@ -1,287 +1,8 @@
-// import React, { useState, useEffect, useMemo } from "react";
-// import { useTable, useSortBy } from "react-table";
-
-// const EnhancedExpandedTable = () => {
-//   const [expandedRows, setExpandedRows] = useState([]);
-//   const [selectedRows, setSelectedRows] = useState([]);
-//   const [searchTerm, setSearchTerm] = useState("");
-//   const [methodFilter, setMethodFilter] = useState("");
-//   const [testTypeFilter, setTestTypeFilter] = useState("");
-//   const [data, setData] = useState([]);
-
-//   // Mock API Call
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       const mockData = [
-//         {
-//           endpoint: "https://petstore.swagger.io/v2/pet",
-//           method: "GET",
-//           testCases: [
-//             {
-//               id: "1",
-//               name: "Get Pet by ID",
-//               url: "/v2/pet/1",
-//               payload: "N/A",
-//               response: "200",
-//               type: "GET",
-//               steps: "1. Fetch pet by ID\n2. Verify response",
-//             },
-//           ],
-//         },
-//         {
-//           endpoint: "https://petstore.swagger.io/v2/user",
-//           method: "POST",
-//           testCases: [
-//             {
-//               id: "3",
-//               name: "Create User",
-//               url: "/v2/user",
-//               payload: '{"name": "John", "status": "active"}',
-//               response: "201",
-//               type: "POST",
-//               steps: "1. Send POST request\n2. Validate user creation",
-//             },
-//           ],
-//         },
-//       ];
-//       setTimeout(() => setData(mockData), 1000); // Simulating API delay
-//     };
-
-//     fetchData();
-//   }, []);
-
-//   // Apply Filters
-//   const filteredData = useMemo(() => {
-//     return data.filter(
-//       (item) =>
-//         item.endpoint.toLowerCase().includes(searchTerm.toLowerCase()) &&
-//         (methodFilter ? item.method === methodFilter : true) &&
-//         (testTypeFilter
-//           ? item.testCases.some((tc) => tc.type === testTypeFilter)
-//           : true)
-//     );
-//   }, [data, searchTerm, methodFilter, testTypeFilter]);
-
-//   // Toggle Expand Row
-//   const toggleRow = (rowIndex) => {
-//     setExpandedRows((prev) =>
-//       prev.includes(rowIndex)
-//         ? prev.filter((i) => i !== rowIndex)
-//         : [...prev, rowIndex]
-//     );
-//   };
-
-//   // Column Definitions (Fixed)
-//   const columns = useMemo(
-//     () => [
-//       {
-//         id: "select",
-//         Header: (
-//           <input
-//             type="checkbox"
-//             className="w-5 h-5"
-//             onChange={(e) =>
-//               setSelectedRows(
-//                 e.target.checked ? filteredData.map((_, i) => i) : []
-//               )
-//             }
-//             checked={
-//               selectedRows.length === filteredData.length &&
-//               filteredData.length > 0
-//             }
-//           />
-//         ),
-//         accessor: "select",
-//         Cell: ({ row }) => (
-//           <input
-//             type="checkbox"
-//             className="w-5 h-5"
-//             checked={selectedRows.includes(row.index)}
-//             onChange={() => {
-//               setSelectedRows((prev) =>
-//                 prev.includes(row.index)
-//                   ? prev.filter((id) => id !== row.index)
-//                   : [...prev, row.index]
-//               );
-//             }}
-//           />
-//         ),
-//         disableSortBy: true,
-//       },
-//       {
-//         id: "sno",
-//         Header: "S.No",
-//         accessor: (_, index) => index + 1,
-//         Cell: ({ value }) => <strong>{value}</strong>,
-//         disableSortBy: true,
-//       },
-//       {
-//         id: "endpoint",
-//         Header: "Endpoint",
-//         accessor: "endpoint",
-//         Cell: ({ row, value }) => (
-//           <div className="flex items-center space-x-2 font-medium text-gray-800">
-//             <button
-//               className={`text-lg font-bold transform transition-transform ${
-//                 expandedRows.includes(row.index) ? "rotate-90" : ""
-//               }`}
-//               onClick={() => toggleRow(row.index)}
-//             >
-//               &#9654;
-//             </button>
-//             <span>{value}</span>
-//           </div>
-//         ),
-//       },
-//       {
-//         id: "method",
-//         Header: "Method",
-//         accessor: "method",
-//       },
-//       {
-//         id: "testCaseCount",
-//         Header: "Test Case Count",
-//         accessor: (row) => row.testCases?.length || 0,
-//       },
-//     ],
-//     [expandedRows, selectedRows, filteredData]
-//   );
-
-//   // React Table Hook
-//   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-//     useTable({ columns, data: filteredData }, useSortBy);
-
-//   return (
-//     <div className="container mx-auto p-6 bg-white shadow-md rounded-lg">
-//       <h1 className="text-3xl font-bold text-sky-800 mb-6">Test Cases Table</h1>
-
-//       {/* Filters */}
-//       <div className="flex items-center justify-between mb-4">
-//         <input
-//           type="text"
-//           placeholder="Search Endpoint"
-//           className="p-2 border rounded w-1/3"
-//           value={searchTerm}
-//           onChange={(e) => setSearchTerm(e.target.value)}
-//         />
-//         <select
-//           className="p-2 border rounded w-1/5"
-//           value={methodFilter}
-//           onChange={(e) => setMethodFilter(e.target.value)}
-//         >
-//           <option value="">All Methods</option>
-//           <option value="GET">GET</option>
-//           <option value="POST">POST</option>
-//         </select>
-//         <select
-//           className="p-2 border rounded w-1/5"
-//           value={testTypeFilter}
-//           onChange={(e) => setTestTypeFilter(e.target.value)}
-//         >
-//           <option value="">All Test Types</option>
-//           <option value="GET">GET</option>
-//           <option value="POST">POST</option>
-//         </select>
-//       </div>
-
-//       {/* Main Table */}
-//       <table
-//         {...getTableProps()}
-//         className="table-auto w-full border-collapse border border-gray-300 rounded-lg"
-//       >
-//         <thead className="bg-gradient-to-r from-gray-100 to-gray-300 text-gray-900">
-//           {headerGroups.map((headerGroup) => (
-//             <tr {...headerGroup.getHeaderGroupProps()}>
-//               {headerGroup.headers.map((column) => (
-//                 <th
-//                   {...column.getHeaderProps()}
-//                   className="p-3 border text-left text-lg font-semibold"
-//                 >
-//                   {column.render("Header")}
-//                 </th>
-//               ))}
-//             </tr>
-//           ))}
-//         </thead>
-//         <tbody {...getTableBodyProps()} className="divide-y divide-gray-200">
-//           {rows.map((row) => {
-//             prepareRow(row);
-//             return (
-//               <React.Fragment key={row.id}>
-//                 <tr
-//                   {...row.getRowProps()}
-//                   className="hover:bg-gray-50 transition-colors"
-//                 >
-//                   {row.cells.map((cell) => (
-//                     <td
-//                       {...cell.getCellProps()}
-//                       className="p-3 border border-gray-300 text-lg font-semibold"
-//                     >
-//                       {cell.render("Cell")}
-//                     </td>
-//                   ))}
-//                 </tr>
-//                 {expandedRows.includes(row.index) && (
-//                   <tr>
-//                     <td
-//                       colSpan={columns.length}
-//                       className="p-3 bg-gray-50 border-t border-b"
-//                     >
-//                       <table className="w-full table-auto border-collapse border border-gray-300">
-//                         <thead className="bg-gray-100">
-//                           <tr>
-//                             <th className="p-2 border text-left">
-//                               Test Case ID
-//                             </th>
-//                             <th className="p-2 border text-left">Test Name</th>
-//                             <th className="p-2 border text-left">
-//                               Request URL
-//                             </th>
-//                             <th className="p-2 border text-left">Payload</th>
-//                             <th className="p-2 border text-left">
-//                               Response Code
-//                             </th>
-//                             <th className="p-2 border text-left">Type</th>
-//                             <th className="p-2 border text-left">Steps</th>
-//                           </tr>
-//                         </thead>
-//                         <tbody>
-//                           {row.original.testCases.map((testCase) => (
-//                             <tr
-//                               key={testCase.id}
-//                               className="hover:bg-gray-50 text-sm"
-//                             >
-//                               <td className="p-2 border">{testCase.id}</td>
-//                               <td className="p-2 border">{testCase.name}</td>
-//                               <td className="p-2 border">{testCase.url}</td>
-//                               <td className="p-2 border">{testCase.payload}</td>
-//                               <td className="p-2 border">
-//                                 {testCase.response}
-//                               </td>
-//                               <td className="p-2 border">{testCase.type}</td>
-//                               <td className="p-2 border">{testCase.steps}</td>
-//                             </tr>
-//                           ))}
-//                         </tbody>
-//                       </table>
-//                     </td>
-//                   </tr>
-//                 )}
-//               </React.Fragment>
-//             );
-//           })}
-//         </tbody>
-//       </table>
-//     </div>
-//   );
-// };
-
-// export default EnhancedExpandedTable;
-
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import * as XLSX from "xlsx";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { fetchTestCases ,fetchTestCaseInfo} from "../Services/apiGenServices";
 import {
   ChevronDown,
   ChevronRight,
@@ -303,7 +24,8 @@ import {
   // getTestsByProjectName,
   RunSelectedTestCase,
 } from "../Services/apiGenServices";
-
+import { useLocalStorageState } from "../hooks/useLocalStorageState";
+import AddTestCaseForm from "./AddTestCaseForm";
 const mockData = [
   {
     id: 1,
@@ -400,58 +122,142 @@ const Table = () => {
   const [searchEndpoint, setSearchEndpoint] = useState("");
   const [selectedMethod, setSelectedMethod] = useState("");
   const [selectedTestType, setSelectedTestType] = useState("");
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [selectedProject, setSelectedProject] =useLocalStorageState(localStorage.getItem("selectedProject"),"selectedProject");
+  const [testCaseStats, setTestCaseStats] = useState({});
+  const [pageSize, setPageSize] = useState(25);
+  const [loading, setLoading] = useState(false);
   const [projects, setProjects] = useState([]);
   const [testCases, setTestCases] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [showFormPopup, setShowFormPopup] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]); // Track selected rows
   const [runningTests, setRunningTests] = useState(false);
+  const [filteredPaths, setFilteredPaths] = useState([]);
+  const[totalPages,setTotalPages]=useState(0);
+  const [selectedTestCaseIds, setSelectedTestCaseIds] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectedPayload, setSelectedPayload] = useState(null);
+
   useEffect(() => {
     const fetchAllProjects = async () => {
       try {
-        setLoading(true);
+        //setLoading(true);
         const projects = await getAllProjects();
         setProjects(projects || []);
       } catch (error) {
         console.log("Failed to load projects. Please try again later.", error);
       } finally {
-        setLoading(false);
+         // setLoading(true);
       }
     };
     fetchAllProjects();
   }, []);
+  useEffect(() => {
+
+    
+    const initializeData = async () => {
+      if (!selectedProject) return;      
+      try {
+        setLoading(true);
+        // Fetch test case info
+        const testCaseInfo = await fetchTestCaseInfo(selectedProject);
+        setTestCaseStats(testCaseInfo); 
+       // Fetch test cases
+        const testCaseData = await fetchTestCases(selectedProject);
+        console.log(testCaseData);
+        setTotalPages(testCaseData.totalPages);
+        setTestCases(testCaseData.data || []); 
+        
+       // Store additional test case stats if needed
+      } catch (error) {
+        console.error("Error initializing test data", error);
+        toast.error("Failed to fetch test data. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    initializeData();
+  }, [selectedProject]);
+  
+  useEffect(() => {
+  
+    const testcasesdata = async () => {
+      if (!selectedProject) return;      
+      try {
+        setLoading(true);
+        setTestCases([]);
+   
+        // Fetch test cases
+        // Fetch test case info
+        const testCaseInfo = await fetchTestCases(selectedProject, currentPage, pageSize,selectedMethod,selectedTestType,searchEndpoint);
+        console.log(testCaseInfo);
+       // Store additional test case stats if needed
+       setTotalPages(testCaseInfo.totalPages);
+       setTestCases(testCaseInfo.data || []);
+      } catch (error) {
+        console.error("Error initializing test data", error);
+        toast.error("Failed to fetch test data. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    testcasesdata();
+  }, [currentPage, pageSize,searchEndpoint,selectedMethod,selectedTestType,totalPages]);// ✅ Runs on initial render & whenever `selectedProject` changes
+  
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchEndpoint(value);
+
+    if (value) {
+      const filtered = testCaseStats?.paths?.filter((path) =>
+        path.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredPaths(filtered);
+    } else {
+      setFilteredPaths([]);
+    }
+  };
+
+  const handleSelectPath = (path) => {
+    setSearchEndpoint(path);
+    setCurrentPage(1);
+    setFilteredPaths([]);
+  };
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    selectAll(false);
+  };
+
   const handleProjectChange = (e) => {
     setSelectedProject(e.target.value);
     setCurrentPage(1);
+    setTestCaseStats({});
     setTestCases([]);
+    setSelectedMethod("");
+    setSelectedTestType("");
+    setSearchEndpoint("");
+    setFilteredPaths([]);
+    setSelectAll(false);
+
   };
 
-  const handleSelectRow = (testCaseId) => {
-    setSelectedRows(
-      (prev) =>
-        prev.includes(testCaseId)
-          ? prev.filter((id) => id !== testCaseId) // Deselect if already selected
-          : [...prev, testCaseId] // Add to selected rows if not selected
-    );
+  const handleRunTestCases = async () => {
+    try{
+    setRunningTests(true);
+    if (selectedProject && selectedTestCaseIds.length === 0) {
+      await RunallTestCases(selectedProject);
+    } else {
+      RunSelectedTestCase(selectedProject,selectedTestCaseIds);
+    }
+    }catch(error){
+      console.error("Error running test cases", error);
+      toast.error("Failed to run test cases. Please try again.");
+    }finally{
+      setRunningTests(false);
+    }
+    
   };
 
-  const handleSelectAllRows = (isChecked) => {
-    if (isChecked) {
-      const allIds = testCases.map((testCase) => testCase.testCaseId);
-      setSelectedRows(allIds);
-    } else {
-      setSelectedRows([]);
-    }
-  };
-  const handleRunTestCases = () => {
-    if (selectedRows.length === 0) {
-      RunallTestCases();
-    } else {
-      RunSelectedTestCase();
-    }
-  };
   // Download all test cases as an Excel file
   const downloadAllTestCases = async () => {
     if (!selectedProject) {
@@ -470,7 +276,7 @@ const Table = () => {
       let totalPages = 1;
 
       do {
-        const data = await getTestCases(selectedProject, currentPage);
+        const data = await getTestCases(selectedProject, 0,0);
         allTestCases = allTestCases.concat(data.testCases || []);
         totalPages = data.totalPages || 1;
         currentPage++;
@@ -509,7 +315,7 @@ const Table = () => {
   };
 
   const filteredData = useMemo(() => {
-    return mockData.filter((row) => {
+    return testCases.filter((row) => {
       const matchesEndpoint = row.endpoint
         .toLowerCase()
         .includes(searchEndpoint.toLowerCase());
@@ -519,7 +325,7 @@ const Table = () => {
         row.testCases.some((tc) => tc.type === selectedTestType);
       return matchesEndpoint && matchesMethod && matchesTestType;
     });
-  }, [searchEndpoint, selectedMethod, selectedTestType]);
+  }, [searchEndpoint, selectedMethod, selectedTestType,testCases]);
 
   const stats = useMemo(() => {
     const methodCounts = METHODS.reduce((acc, method) => {
@@ -560,17 +366,77 @@ const Table = () => {
     );
   };
 
+  const handleSelectTestCase = (id) => {
+    setSelectedTestCaseIds((prevSelected) =>
+      prevSelected.includes(id)
+        ? prevSelected.filter((testCaseId) => testCaseId !== id)
+        : [...prevSelected, id]
+    );
+  };
+
+  const handleSelectAllTestCases = (checked, testCases) => {
+    if (checked) {
+      let newSelectedIds = testCases.map((testCase) => testCase.id);
+      setSelectedTestCaseIds((prevSelected) => [
+        ...new Set([...prevSelected, ...newSelectedIds]),
+      ]);
+    } else {
+      let newSelectedIds = testCases.map((testCase) => testCase.id);
+      setSelectedTestCaseIds((prevSelected) =>
+        prevSelected.filter((id) => !newSelectedIds.includes(id))
+      );
+    }
+  };
+
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      let allTestCaseIds = testCases.flatMap((row) => row.testCases.map((testCase) => testCase.id));
+      setSelectedTestCaseIds(allTestCaseIds);
+    } else {
+      setSelectedTestCaseIds([]);
+    }
+    setSelectAll(checked);
+  };
+
   return (
+    
     <div className="w-full overflow-hidden  rounded-xl shadow-lg border border-gray-200">
       {/* Main Header */}
+      {runningTests && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-center items-center bg-black bg-opacity-50 overflow-none">
+          <div className="bg-white p-10 rounded-lg shadow-2xl transform scale-95 hover:scale-100 transition-transform duration-300 ease-out w-96 h-96 flex flex-col items-center justify-center">
+            {/* Enhanced Loader Animation */}
+            <div className="w-16 h-16 rounded-full border-t-4 border-b-4 border-transparent border-t-blue-500 border-b-green-500 animate-spin mb-6"></div>
+
+            {/* Creative Text */}
+            <p className="text-2xl font-extrabold text-gray-700 text-center leading-relaxed">
+              Your test cases are running at warp speed!
+            </p>
+          </div>
+        </div>
+      )}
       <div className="bg-gradient-to-r from-cyan-950 to-sky-900 px-8 py-8">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-3">
-            <TestTubeDiagonal className="w-12 h-12 text-white mb-6" />
-            <div>
+          <div className="flex flex-col items-center justify-start">
+          <div className="flex items-center space-x-2 w-full">
+               <TestTubeDiagonal className="w-12 h-12 text-white mb-6" />
               <h2 className="text-3xl font-bold text-white mb-1">
                 Generated Test Cases
               </h2>
+             { selectedProject && <div className="relative group top-0 right-0">
+                   <div className="w-20 h-12 bg-white/10 rounded-full border-blue-400/20 backdrop-blur-sm flex flex-col justify-center items-center shadow-sm ml-5">
+                        <span className="text-white font-bold text-2xl ">
+                          {testCaseStats.totalTestCasesCount}
+                        </span>
+                        {/* <span className="text-blue-100 text-xs ">Tests</span> */}
+                      </div>
+
+                      {/* Tooltip */}
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 ml-2 w-max bg-gray-800 text-white text-xs px-3 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-md">
+                        Total Test Cases
+                      </div>
+                    </div>}
+          </div>
               {/* <p className="text-blue-100 text-sm">
                 {selectedProject?.projectName || "Select a project to view"}
                 Selected Project Name</p> */}
@@ -603,23 +469,14 @@ const Table = () => {
                     </option>
                   ))}
                 </select>
+              </div >
+          </div>
 
-                {selectedProject && (
+          <div className="flex items-center space-x-4">
+          {selectedProject && (
                   <div className="flex justify-around items-center space-x-4">
                     {/* <div className="flex items-center space-x-48 sm:mt-0"> */}
-                    <div className="relative group bottom-11">
-                      <div className="w-20 h-12 bg-white/10 rounded-full border-blue-400/20 backdrop-blur-sm flex flex-col justify-center items-center shadow-sm ml-5">
-                        <span className="text-white font-bold text-2xl ">
-                          {stats.total}20
-                        </span>
-                        {/* <span className="text-blue-100 text-xs ">Tests</span> */}
-                      </div>
 
-                      {/* Tooltip */}
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 ml-2 w-max bg-gray-800 text-white text-xs px-3 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-md">
-                        Total Test Cases
-                      </div>
-                    </div>
 
                     <div className=" flex items-center space-x-5">
                       {/* Add New Test Case Button */}
@@ -643,9 +500,9 @@ const Table = () => {
                           <PlayCircle className="w-8 h-8" />
                           {runningTests
                             ? "Running..."
-                            : selectedRows.length === 0
+                            : selectedTestCaseIds.length === 0
                             ? "Run All Test Cases"
-                            : `Run (${selectedRows.length}) Test Cases`}
+                            : `Run (${selectedTestCaseIds.length}) Test Cases`}
                         </button>
                       </div>
 
@@ -668,9 +525,8 @@ const Table = () => {
                     {/* </div> */}
                   </div>
                 )}
-              </div>
-            </div>
           </div>
+        
           {/* <div className="flex items-center space-x-4">
             <div className="px-4 py-2 bg-white/10 rounded-lg backdrop-blur-sm">
               <span className="text-white font-medium text-lg">
@@ -695,20 +551,33 @@ const Table = () => {
               type="text"
               placeholder="Search endpoints..."
               value={searchEndpoint}
-              onChange={(e) => setSearchEndpoint(e.target.value)}
+              onChange={handleSearchChange}
               className="w-full h-12 bg-white/10 border border-blue-400/20 rounded-xl pl-12 pr-4 text-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/30"
             />
+            {filteredPaths && (
+              <ul className="absolute z-10 w-full bg-white/10 rounded-xl mt-1 shadow-lg">
+                {filteredPaths.map((path) => (
+                  <li
+                    key={path}
+                    onClick={() => handleSelectPath(path)}
+                    className="p-2  bg-white hover:bg-blue-500 hover:text-white cursor-pointer"
+                  >
+                    {path}
+                  </li>
+                ))}
+              </ul>
+              )}
             <div className="grid grid-cols-2 gap-2 mb-6">
               <div className="px-2 py-1 bg-white/10 rounded-lg backdrop-blur-sm mt-4 pl-4">
                 <span className="text-white font-medium text-sm">
-                  {stats.total}
+                  {testCaseStats.totalEndpointsCount}
                 </span>
                 <span className="text-blue-100 ml-2">Total Endpoints</span>
               </div>
 
               <div className="px-2 py-1 bg-white/10 rounded-lg backdrop-blur-sm mt-4 pl-4">
                 <span className="text-white font-medium text-sm">
-                  {stats.total}
+                  {/* {testCaseStats.totalMethodCount} */}
                 </span>
                 <span className="text-blue-100 ml-2">Searched</span>
               </div>
@@ -720,45 +589,60 @@ const Table = () => {
           <div>
             <select
               value={selectedMethod}
-              onChange={(e) => setSelectedMethod(e.target.value)}
+              onChange={(e) => {setSelectedMethod(e.target.value);
+                               setCurrentPage(1)}}
               className="h-12 bg-white/10 border border-blue-400/20 w-full rounded-xl px-4 text-lg text-white focus:outline-none focus:ring-2 focus:ring-white/30"
             >
-              <option value="">Method</option>
-              {METHODS.map((method) => (
-                <option key={method} value={method}>
+               <option value="" disabled>
+                    {testCaseStats?.methods?.length > 0
+                      ? "Choose a Method"
+                      : "No Methods available"}
+                  </option>
+              {testCaseStats?.methods?.map((method) => (
+              <option className="text-black" key={method} value={method}>
                   {method}
-                </option>
+               </option>
               ))}
             </select>
             {/* Method Stats */}
             <div>
-              <div className="flex items-center space-x-2 mt-4">
-                {METHODS.map((method) => (
-                  <div
-                    key={method}
-                    className={`px-2 py-1 rounded-lg text-sm font-medium flex items-center space-x-2 
-                ${
-                  stats.methods[method] > 0
-                    ? "bg-white/15 text-white"
-                    : "bg-white/5 text-cyan-200"
-                }`}
-                  >
-                    <span className="text-sm font-semibold">{method}</span>
-                    <span className="text-blue-200">-</span>
-                    <span>{stats.methods[method]}</span>
-                  </div>
-                ))}
+            <div className="flex items-center space-x-2 mt-4">
+            {testCaseStats?.methods?.map((method) => (
+              <div
+                key={method}
+                className={`px-2 py-1 rounded-lg text-sm font-medium flex items-center space-x-2 
+                  ${
+                    testCaseStats.totalMethodCounts?.[method] > 0
+                      ? "bg-white/15 text-white"
+                      : "bg-white/5 text-cyan-200"
+                  }`}
+               >
+              <span className="text-sm font-semibold">
+                {method}-{testCaseStats.totalMethodCounts?.[method] ?? 0}
+                <span className="text-sm text-white/70 text-bold ml-1">
+                  {`(${stats?.methods?.[method] ?? 0})`}
+                </span>
+              </span>
               </div>
-            </div>
+            ))}
+          </div>
+
+          </div>
           </div>
           <select
             value={selectedTestType}
-            onChange={(e) => setSelectedTestType(e.target.value)}
+            onChange={(e) =>{ setSelectedTestType(e.target.value);
+              setCurrentPage(1)
+            }}
             className="h-12 bg-white/10 border border-blue-400/20 rounded-xl px-4 text-lg text-white focus:outline-none focus:ring-2 focus:ring-white/30"
           >
-            <option value="">Test Type</option>
-            {TEST_TYPES.map((type) => (
-              <option key={type} value={type}>
+            <option value="" disabled>
+            {testCaseStats?.methods?.length > 0
+                      ? "Choose a Test Type"
+                      : "No Test types available"}
+              </option>
+            {testCaseStats?.testTypes?.map((type) => (
+              <option className="text-black" key={type} value={type}>
                 {type}
               </option>
             ))}
@@ -786,40 +670,38 @@ const Table = () => {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
+   
+     { selectedProject && <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="px-8 py-4 text-left text-sm font-semibold uppercase text-gray-600">
-                <input
-                  type="checkbox"
-                  onChange={(e) => handleSelectAllRows(e.target.checked)}
-                  checked={
-                    selectedRows.length === testCases.length &&
-                    testCases.length > 0
-                  }
-                  className="w-5 h-5 text-sky-600 border-gray-300 rounded focus:ring-blue-200 focus:ring-2 transition-all duration-300"
-                />
+              <th className="px-8 py-4 text-left text-sm font-semibold uppercase text-gray-800">
+              <input
+                type="checkbox"
+                className="w-5 h-5 text-sky-600 border-gray-300 rounded focus:ring-blue-200 focus:ring-2 transition-all duration-300"
+                checked={selectAll}
+                onChange={(e) => handleSelectAll(e.target.checked)}
+              />
               </th>
               <th className="px-6 py-4 text-left w-16"></th>
 
-              <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-600">
+              <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-800">
                 Endpoint
               </th>
-              <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-600">
+              <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-800">
                 Method
               </th>
-              <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-600">
+              <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-800">
                 Test Count
               </th>
 
-              <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-600">
+              <th className="px-6 py-4 text-left text-base font-semibold uppercase text-gray-800">
                 Last Generated
               </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {filteredData.map((row) => (
+            {testCases.map((row) => (
               <React.Fragment key={row.id}>
                 <tr
                   className={`transition-colors ${
@@ -830,15 +712,16 @@ const Table = () => {
                 >
                   <td className="px-8 py-4">
                     <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        className="w-5 h-5 text-sky-600 border-gray-300 rounded focus:ring-blue-200 focus:ring-2 transition-all duration-300"
-
-                        // checked={selectedRows.includes(row.original.testCaseId)}
-                        // onChange={() =>
-                        //   handleSelectRow(row.original.testCaseId)
-                        // }
-                      />
+                    <input
+                  type="checkbox"
+                  className="w-5 h-5 text-sky-600 border-gray-300 rounded focus:ring-blue-200 focus:ring-2 transition-all duration-300"
+                  onChange={(e) =>
+                    handleSelectAllTestCases(e.target.checked, row.testCases)
+                  }
+                  checked={row.testCases.every((testCase) =>
+                    selectedTestCaseIds.includes(testCase.id)
+                  )}
+                />
                     </div>
                   </td>
                   <td className="px-0 py-4">
@@ -851,9 +734,9 @@ const Table = () => {
                       }`}
                     >
                       {expandedRows.includes(row.id) ? (
-                        <ChevronDown className="w-5 h-5 text-gray-600" />
+                        <ChevronDown className="w-5 h-5 text-gray-800" />
                       ) : (
-                        <ChevronRight className="w-5 h-5 text-gray-600" />
+                        <ChevronRight className="w-5 h-5 text-gray-800" />
                       )}
                     </button>
                   </td>
@@ -873,7 +756,7 @@ const Table = () => {
                       {row.method}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-base text-gray-600">
+                  <td className="px-6 py-4 text-base text-gray-800">
                     {row.testCount}
                   </td>
                   {/* <td className="px-6 py-4">
@@ -890,7 +773,7 @@ const Table = () => {
                       </span>
                     </div>
                   </td> */}
-                  <td className="px-6 py-4 text-base text-gray-600">
+                  <td className="px-6 py-4 text-base text-gray-800">
                     {row.lastRun}
                   </td>
                 </tr>
@@ -904,7 +787,7 @@ const Table = () => {
                               Test Cases
                             </h3>
                             <span className="text-sm text-gray-100">
-                              {row.testCases.length} cases
+                              {row.testCases.length} cases cases
                             </span>
                           </div>
                         </div>
@@ -912,25 +795,40 @@ const Table = () => {
                           <table className="w-full">
                             <thead>
                               <tr className="bg-gray-50">
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">
+                                <input
+                              type="checkbox"
+                              onChange={(e) =>
+                                handleSelectAllTestCases(
+                                  e.target.checked,
+                                  row.testCases
+                                )
+                              }
+                              checked={row.testCases.every((testCase) =>
+                                selectedTestCaseIds.includes(testCase.id)
+                              )}
+                              className="w-5 h-5 text-sky-600 border-gray-300 rounded focus:ring-blue-200 focus:ring-2 transition-all duration-300"
+                            />
+                                </th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">
                                   ID
                                 </th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">
                                   Name
                                 </th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">
                                   Request URL
                                 </th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">
                                   Payload
                                 </th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">
                                   Response
                                 </th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">
                                   Type
                                 </th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">
                                   Steps
                                 </th>
                               </tr>
@@ -942,49 +840,56 @@ const Table = () => {
                                   className="border-t border-gray-100 hover:bg-gray-50 transition-colors"
                                 >
                                   <td className="px-6 py-4 text-sm font-medium text-gray-700">
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedTestCaseIds.includes(
+                                        testCase.id
+                                      )}
+                                      onChange={() =>
+                                        handleSelectTestCase(testCase.id)
+                                      }
+                                      className="w-5 h-5 text-sky-600 border-gray-300 rounded focus:ring-blue-200 focus:ring-2 transition-all duration-300"
+                                    />
+                                  </td>
+                                  <td className="px-6 py-4 text-sm text-gray-700">
                                     {testCase.id}
                                   </td>
-                                  <td className="px-6 py-4 text-sm text-gray-600">
+                                  <td className="px-6 py-4 text-sm text-gray-700">
                                     {testCase.name}
                                   </td>
                                   <td className="px-6 py-4">
-                                    <code className="text-sm bg-gray-100 px-3 py-1 rounded-lg text-gray-800">
-                                      {testCase.requestUrl}
-                                    </code>
+                                  <button
+                                    onClick={() => setSelectedPayload(testCase.requesturl)}
+                                    className="text-blue-600 text-sm underline hover:text-blue-800"
+                                  >
+                                    View URL
+                                  </button>
                                   </td>
                                   <td className="px-6 py-4">
-                                    <code className="text-sm bg-gray-100 px-3 py-1 rounded-lg text-gray-800">
-                                      {testCase.payload}
-                                    </code>
+                                  <button
+                                    onClick={() => setSelectedPayload(testCase.payload)}
+                                    className="text-blue-600 text-sm underline hover:text-blue-800 "
+                                  >
+                                    View Payload
+                                  </button>
                                   </td>
                                   <td className="px-6 py-4">
                                     <span
-                                      className={`px-3 py-1 rounded-lg text-sm font-medium ${
-                                        testCase.responseCode.startsWith("2")
-                                          ? "bg-green-100 text-green-800"
-                                          : "bg-red-100 text-red-800"
-                                      }`}
+                                      className={`px-3 py-1 rounded-lg text-sm font-medium text-gray-700`}
                                     >
-                                      {testCase.responseCode}
+                                      {testCase.responsecode}
                                     </span>
                                   </td>
                                   <td className="px-6 py-4">
-                                    <span className="text-sm font-medium px-3 py-1 bg-indigo-100 text-indigo-800 rounded-lg">
+                                    <span className="text-sm font-medium px-3 py-1 rounded-lg text-gray-700">
                                       {testCase.type}
                                     </span>
                                   </td>
                                   <td className="px-6 py-4">
                                     <div className="flex items-center space-x-2">
-                                      {/* {getStatusIcon(testCase.status)} */}
-                                      {/* <span
-                                        className={`text-sm font-medium ${
-                                          testCase.status === "Passed"
-                                            ? "text-emerald-600"
-                                            : "text-red-600"
-                                        }`}
-                                      >
-                                        {testCase.status}
-                                      </span> */}
+                                    <span className="text-sm text-gray-700">
+                                      {testCase.steps}
+                                    </span>
                                     </div>
                                   </td>
                                 </tr>
@@ -1000,7 +905,96 @@ const Table = () => {
             ))}
           </tbody>
         </table>
-      </div>
+      </div>}
+      {loading && <div className="flex items-center justify-center h-64">Loading....</div>}
+      {!selectedProject && <div className="flex items-center justify-center h-64">select the project...</div>}
+      {/* Pagination Controls */}
+     {!(testCases?.length <= 0) && <div className="flex justify-between items-center px-8 py-4 bg-gray-50 border-t border-gray-200">
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-800">Items per page:</span>
+          <select
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            value={pageSize}
+            className="h-8 bg-white border border-gray-300 rounded-lg px-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          >
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+          </select>
+        </div>
+        <div className="flex items-center space-x-2">
+          <button
+           onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
+            disabled={currentPage === 1}
+            className="h-8 w-8 flex items-center justify-center bg-white border border-gray-300 rounded-lg text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            &lt;
+          </button>
+          <span className="text-sm text-gray-800">
+            Page {currentPage} of {Number(totalPages)}
+          </span>
+          <button
+            onClick={() => handlePageChange(Math.min(currentPage + 1, Number(totalPages)))}
+            disabled={currentPage === Number(totalPages)}
+            className="h-8 w-8 flex items-center justify-center bg-white border border-gray-300 rounded-lg text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            &gt;
+          </button>
+        </div>
+      </div>}
+      {((testCases?.length <= 0) && selectedProject && !loading) && 
+  <div className="flex justify-center items-center px-8 py-4 bg-gray-50 border-t h-64 border-gray-200">
+    No testcases found...
+  </div>
+}
+      {/* Payload Modal */}
+      {selectedPayload && (
+        <div
+          className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 overflow-auto hide-scrollbar z-50"
+          onClick={() => setSelectedPayload(null)}
+        >
+          <div className="bg-white p-6 rounded shadow-lg w-1/2 max-h-[90vh] overflow-auto">
+            <h3 className="text-lg font-bold mb-4">Details</h3>
+            <pre className="text-sm bg-gray-100 p-4 rounded overflow-auto">
+              {selectedPayload}
+            </pre>
+            <div className="flex justify-between items-center mt-4">
+              <button
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700"
+                onClick={() => {
+                  navigator.clipboard.writeText(selectedPayload);
+                  toast.success("Copied to clipboard!", {
+                    // position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 4000,
+                    theme: "light",
+                  });
+                  // alert("Copied to clipboard!");
+                }}
+              >
+                Copy
+              </button>
+              <button
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
+                onClick={() => setSelectedPayload(null)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* PopupForm */}
+      {showFormPopup && (
+        <AddTestCaseForm
+          selectedProject={selectedProject}
+          onClose={() => setShowFormPopup(false)}
+          onTestCaseAdded={fetchTestCases}
+        />
+      )}
     </div>
   );
 };

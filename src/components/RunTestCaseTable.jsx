@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback ,useLayoutEffect} from "react";
 import { ClipboardIcon } from "@heroicons/react/24/solid";
 import {
   getAllProjects,
@@ -8,6 +8,7 @@ import {
 } from "../Services/apiGenServices";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
+import { useLocalStorageState } from "../hooks/useLocalStorageState";
 
 const RunTestCaseTable = () => {
   const [filteredRunData, setFilteredRunData] = useState([]);
@@ -15,7 +16,8 @@ const RunTestCaseTable = () => {
   const [expandedRows, setExpandedRows] = useState({});
   const [copiedTextId, setCopiedTextId] = useState(null);
   const [expandedContent, setExpandedContent] = useState(null);
-  const [selectedProject, setSelectedProject] = useState("");
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [selectProjectName,setSelectedProjectName] = useLocalStorageState(localStorage.getItem("selectedProject"),"selectedProject");
   const [projects, setProjects] = useState([]);
   const [selectedPayload, setSelectedPayload] = useState(null);
   const [isFiltering, setIsFiltering] = useState(false);
@@ -26,7 +28,42 @@ const RunTestCaseTable = () => {
   const [testRuns, setTestRuns] = useState([]); // For delete confirmation popup
   const [showPopup, setShowPopup] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+ 
+  useEffect(() => {
+    const fetchAllProjects = async () => {
+      try {
+        setLoading(true);
+        const projects = await getAllProjects();
+        setProjects(projects || []);
+      } catch (error) {
+        console.error("Error fetching project names:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchAllProjects();
+  }, []);
+  
+  useLayoutEffect(() => {
+    if (selectProjectName) {
+      const fetchData = async () => {
+        try {
+          setLoading(true);
+          const data = await getTestRunsByProject(selectProjectName);
+          setFilteredRunData(data || []);
+        } catch (error) {
+          console.error("Failed to load test cases:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchData();
+    }
+  }, [selectProjectName]); // Added `projects` dependency
+  
+  
   const handleDelete = async (projectId) => {
     setIsDeleting(true); // Indicate deletion is in progress
     try {
@@ -106,20 +143,12 @@ const RunTestCaseTable = () => {
   //   setPopupVisible(false);
   // };
 
-  const fetchProjectsAndRuns = useCallback(async () => {
-    try {
-      const projectsResponse = await getAllProjects();
-      setProjects(projectsResponse || []);
-    } catch (err) {
-      console.error("Failed to fetch data. Please try again later.", err);
-    }
-  }, []);
 
-  const fetchTestCases = useCallback(async (projectName) => {
-    if (!projectName) return;
+  const fetchTestCases = useCallback(async (selectProjectName) => {
+    if (!selectProjectName) return;
     setLoading(true);
     try {
-      const data = await getTestRunsByProject(projectName);
+      const data = await getTestRunsByProject(selectProjectName);
       setFilteredRunData(data || []);
     } catch (error) {
       console.log("Failed to load test cases. Please try again later.", error);
@@ -128,25 +157,25 @@ const RunTestCaseTable = () => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchProjectsAndRuns();
-  }, [fetchProjectsAndRuns]);
+// Remove fetchProjectsAndRuns and fetchTestCases from dependency array
 
   const handleProjectChange = async (e) => {
-    const projectName = e.target.value; // Get the selected project name from the dropdown
+    const projectName =  e.target.value; // Get the selected project name from the dropdown
     const project = projects.find((p) => p.projectName === projectName); // Find the corresponding project object
 
-    setSelectedProject(project); // Update the state with the full project object
+    setSelectedProject(project);
+    setSelectedProjectName(projectName); // Update the state with the full project object
     setIsFiltering(true); // Indicate that filtering is in progress
 
-    if (!projectName) {
+    if (selectProjectName !==null) {
       setFilteredRunData([]); // Clear filtered data if no project is selected
     } else {
-      await fetchTestCases(projectName); // Fetch test cases for the selected project
+      await fetchTestCases(selectProjectName); // Fetch test cases for the selected project
     }
 
     setIsFiltering(false); // Filtering is complete
   };
+
 
   const toggleRow = (runId) => {
     setExpandedRows((prevState) => ({
@@ -293,14 +322,12 @@ const RunTestCaseTable = () => {
         )}
       </div> */}
 
-      <div className="mb-6 flex items-center space-x-4 relative">
-        <label htmlFor="project-select" className="font-semibold text-gray-900">
-          Select Project:
-        </label>
+<div className="w-full h-px bg-gray-300 my-6" />
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
         <select
           id="project-select"
           name="project"
-          value={selectedProject?.projectName || ""}
+          value={selectProjectName || ""}
           onChange={handleProjectChange}
           className="p-2 border rounded w-full sm:w-auto focus:ring-2 focus:ring-blue-500 font-semibold truncate"
           style={{
@@ -310,16 +337,16 @@ const RunTestCaseTable = () => {
             whiteSpace: "nowrap", // Prevent text from wrapping to the next line
           }}
         >
-          <option value="">Choose a project</option>
-          {projects.map((project) => (
-            <option
-              key={project.id || project.projectName}
-              value={project.projectName}
-            >
+          <option value="" disabled>
+            {projects.length > 0 ? "Choose a project" : "No projects available"}
+          </option>
+          {projects.map((project, index) => (
+            <option key={project.id || index} value={project.id}>
               {project.projectName}
             </option>
           ))}
         </select>
+
 
         {/* Positioned Button */}
         {filteredRunData.length > 0 && (
@@ -384,7 +411,7 @@ const RunTestCaseTable = () => {
             </p>
           </div>
         </div>
-      ) : selectedProject ? (
+      ) : selectProjectName ? (
         filteredRunData.length > 0 ? (
           <div className="overflow-auto rounded-lg shadow min-w-full">
             <table className="min-w-full table-auto bg-white border-collapse">

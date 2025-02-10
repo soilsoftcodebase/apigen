@@ -1,8 +1,8 @@
-const API_URL = "https://apigenbackend.soilsoft.ai:5001/api";
+//const API_URL = "https://apigenbackend.soilsoft.ai:5001/api";
 
-//  const API_URL = "https://localhost:7146/api";
+ const API_URL = "https://localhost:7146/api";
 
-const Page_size = 50;
+//const Page_size = 50;
 // Function to create a new project
 export async function createProject(saveProjectDto) {
   try {
@@ -132,10 +132,10 @@ export async function generateTestCases(projectName) {
 }
 
 // Function to get test cases for a specific project
-export async function getTestCases(projectName, pageNumber) {
+export async function getTestCases(projectName, pageNumber,pageSize) {
   try {
     const res = await fetch(
-      `${API_URL}/ApiGen/Projects/${projectName}/testcases?pageNumber=${pageNumber}&pageSize=${Page_size}`,
+      `${API_URL}/ApiGen/Projects/${projectName}/testcases?pageNumber=${pageNumber}&pageSize=${pageSize}`,
       {
         method: "GET",
         headers: {
@@ -435,6 +435,7 @@ export async function fetchProjectSummary() {
 // Function to run Selected testcase
 export async function RunSelectedTestCase(projectName, testCaseList) {
   try {
+    console.log("Payload:", testCaseList);
     const response = await fetch(
       `${API_URL}/TestCases/${projectName}/runtestcases`,
       {
@@ -578,5 +579,46 @@ export async function deleteSingleTestRunById(testRunId) {
       throw Error("Error deleting test run");
   }
 }
+export async function fetchTestCases(projectName, pageNumber = 1, pageSize = 25, method =null, testType=null,path=null) {
+  try {
+    // Construct query parameters dynamically
+    const params = { pageSize, pageNumber };
+    
+    if (method) params.method = method;
+    if (testType) params.testType = testType;
+    if(path) params.path = path;
+    const queryString = new URLSearchParams(params).toString();
 
+    const res = await fetch(`${API_URL}/TestCasesData/${projectName}/testcases?${queryString}`);
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error("Error response from server:", errorData);
+      throw Error(errorData.title || "Failed to fetch test cases");
+    }
+
+    return await res.json(); // Use `await res.json()` to correctly extract response data
+  } catch (error) {
+    console.error("Error fetching test cases:", error);
+    throw error;
+  }
+}
+
+
+export async function fetchTestCaseInfo(projectName) {
+  try {
+      const res = await fetch(`${API_URL}/TestCasesData/${projectName}/testcases/info`);
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Error response from server:", errorData);
+        throw Error(errorData.title || "Failed to delete test run");
+    }
+    //console.log(res.json);
+      return res.json();
+  } catch (error) {
+      console.error("Error fetching test case info:", error);
+      throw error;
+  }
+}
 

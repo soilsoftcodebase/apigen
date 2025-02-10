@@ -10,6 +10,7 @@ import {
   createProjectWithFile,
 } from "../Services/apiGenServices";
 
+import { useLocalStorageState } from "../hooks/useLocalStorageState";
 const PopupForm = ({
   setShowForm,
 
@@ -25,13 +26,17 @@ const PopupForm = ({
   const [inputMode, setInputMode] = useState("swagger"); // 'swagger' or 'json'
   const [jsonFile, setJsonFile] = useState(null);
   const [submitAction, setSubmitAction] = useState(null); // Tracks the action: 'save' or 'saveAndGenerate'
-
+  const [selectedProject, setSelectedProject] =  useLocalStorageState(null, "selectedProject");
   const handleFormSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission
     if (submitAction === "save") {
-      await handleSave(); // Call the save handler
+      await handleSave(); 
+      // Call the save handler
     } else if (submitAction === "saveAndGenerate") {
-      await handleSaveAndGenerate(); // Call the save and generate handler
+      await handleSaveAndGenerate(); 
+      
+      
+      // Call the save and generate handler
     }
   };
   // Swagger Form State
@@ -133,6 +138,7 @@ const handleJsonFormChange = (e) => {
           ...swaggerFormData,
         });
         console.log("Swagger Form Data", swaggerFormData);
+        setSelectedProject(swaggerFormData.projectName);
       } else if (inputMode === "json") {
         if (!jsonFile) {
           toast.error("Please upload a valid JSON file.");
@@ -146,6 +152,7 @@ const handleJsonFormChange = (e) => {
         formData.append("SwaggerFile", jsonFile);
   
         await createProjectWithFile(formData);
+        setSelectedProject(jsonFormData.projectName);
         console.log("JSON Form Data with File", jsonFormData);
       }
   
@@ -169,6 +176,7 @@ const handleJsonFormChange = (e) => {
         await saveAndGenerateTestCases({
           ...swaggerFormData,
         });
+        setSelectedProject(swaggerFormData.projectName);
         console.log("Swagger Form Data", swaggerFormData);
       } else if (inputMode === "json") {
         if (!jsonFile) {
@@ -183,6 +191,7 @@ const handleJsonFormChange = (e) => {
         formData.append("SwaggerFile", jsonFile);
   
         await saveAndGenerateTestCasesWithFile(formData);
+        setSelectedProject(jsonFormData.projectName);
         console.log("JSON Form Data with File", jsonFormData);
       }
   

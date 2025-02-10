@@ -1,21 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState,useLayoutEffect } from "react";
 import { FaRegEdit } from "react-icons/fa";
 import {
   getAllProjects,
   getTestData,
   updateTestData,
 } from "../Services/apiGenServices";
+import { useLocalStorageState } from "../hooks/useLocalStorageState";
 
 const TestDataTable = () => {
   const [projects, setProjects] = useState([]);
-  const [selectedProject, setSelectedProject] = useState("");
+  const [selectedProject, setSelectedProject] = useLocalStorageState(localStorage.getItem("selectedProject"),"selectedProject");
   const [testData, setTestData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [editRowId, setEditRowId] = useState(null);
   const [originalData, setOriginalData] = useState(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const fetchAllProjects = async () => {
       try {
         setLoading(true);
@@ -31,7 +32,7 @@ const TestDataTable = () => {
     fetchAllProjects();
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (selectedProject) {
       const fetchTestData = async () => {
         try {

@@ -14,13 +14,14 @@ import {
 } from "../Services/apiGenServices";
 import AddTestCaseForm from "./AddTestCaseForm";
 import EnhancedFilters from "./EnhancedFilters";
+import { useLocalStorageState } from "../hooks/useLocalStorageState";
 
 const TestCasesTable = () => {
   const [testCases, setTestCases] = useState([]);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedProject, setSelectedProject] = useLocalStorageState(localStorage.getItem("selectedProject"), "selectedProject");
   const [selectedRows, setSelectedRows] = useState([]); // Track selected rows
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -29,7 +30,7 @@ const TestCasesTable = () => {
   const [showPopup, setShowPopup] = useState(false); // Manage loader popup
   const navigate = useNavigate(); // Navigate to different routes
   const [showFormPopup, setShowFormPopup] = useState(false);
-
+  
   // Fetch all projects on component mount
   useEffect(() => {
     const fetchAllProjects = async () => {
