@@ -1,6 +1,6 @@
-//const API_URL = "https://apigenbackend.soilsoft.ai:5001/api";
+const API_URL = "https://apigenbackend.soilsoft.ai:5001/api";
 
- const API_URL = "https://localhost:7146/api";
+//  const API_URL = "https://localhost:7146/api";
 
 //const Page_size = 50;
 // Function to create a new project
@@ -132,7 +132,7 @@ export async function generateTestCases(projectName) {
 }
 
 // Function to get test cases for a specific project
-export async function getTestCases(projectName, pageNumber,pageSize) {
+export async function getTestCases(projectName, pageNumber, pageSize) {
   try {
     const res = await fetch(
       `${API_URL}/ApiGen/Projects/${projectName}/testcases?pageNumber=${pageNumber}&pageSize=${pageSize}`,
@@ -219,19 +219,20 @@ export async function updateTestData(projectName, updateData) {
 export async function fetchSwaggerInfo(baseUrl, version) {
   // Define possible paths based on the given base URL and version
   const url = new URL(baseUrl);
-  const segments = url.pathname.trim('/').split('/');
+  const segments = url.pathname.trim("/").split("/");
 
   // Extract version from the last segment
-  const versionFromUrl = segments.length > 0 ? segments[segments.length - 1] : '';
+  const versionFromUrl =
+    segments.length > 0 ? segments[segments.length - 1] : "";
 
   // Reconstruct base URL without the version
   const SwaggerUrl = `${url.protocol}//${url.host}`;
-  
+
   const pathsToTry = [
     `${baseUrl.replace("/index.html", "")}/${version}/swagger.json`, // Path with version, e.g., /v2/swagger.json
     `${baseUrl}/swagger/${version}/swagger.json`, // Nested version path, e.g., /swagger/v2/swagger.json
     `${baseUrl}/swagger.json`, // Default path, e.g., /swagger.json
-    `${SwaggerUrl}/swagger/${versionFromUrl || version}/swagger.json` 
+    `${SwaggerUrl}/swagger/${versionFromUrl || version}/swagger.json`,
   ];
 
   // Try each path until a successful fetch
@@ -493,7 +494,9 @@ export async function createProjectWithFile(formData) {
 
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(errorData.title || "Failed to create project with file upload");
+      throw new Error(
+        errorData.title || "Failed to create project with file upload"
+      );
     }
 
     const data = await res.json();
@@ -512,7 +515,10 @@ export async function saveAndGenerateTestCasesWithFile(formData) {
 
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(errorData.title || "Failed to save and generate test cases with file upload");
+      throw new Error(
+        errorData.title ||
+          "Failed to save and generate test cases with file upload"
+      );
     }
 
     const data = await res.json();
@@ -525,71 +531,80 @@ export async function saveAndGenerateTestCasesWithFile(formData) {
 
 export async function deleteProjectById(projectId) {
   try {
-      const res = await fetch(`${API_URL}/ApiGen/Projects/${projectId}`, {
-          method: "DELETE",
-      });
+    const res = await fetch(`${API_URL}/ApiGen/Projects/${projectId}`, {
+      method: "DELETE",
+    });
 
-      if (!res.ok) {
-          const errorData = await res.json();
-          console.error("Error response from server:", errorData);
-          throw Error(errorData.title || "Failed to delete project");
-      }
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error("Error response from server:", errorData);
+      throw Error(errorData.title || "Failed to delete project");
+    }
 
-      return true;
+    return true;
   } catch (err) {
-      console.error("Error deleting project:", err);
-      throw Error("Error deleting project");
+    console.error("Error deleting project:", err);
+    throw Error("Error deleting project");
   }
 }
 
 export async function deleteAllTestRunsByProjectId(projectId) {
   try {
-      const res = await fetch(`${API_URL}/ApiGen/Projects/${projectId}/testrun`, {
-          method: "DELETE",
-      });
+    const res = await fetch(`${API_URL}/ApiGen/Projects/${projectId}/testrun`, {
+      method: "DELETE",
+    });
 
-      if (!res.ok) {
-          const errorData = await res.json();
-          console.error("Error response from server:", errorData);
-          throw Error(errorData.title || "Failed to delete test runs");
-      }
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error("Error response from server:", errorData);
+      throw Error(errorData.title || "Failed to delete test runs");
+    }
 
-      return true;
+    return true;
   } catch (err) {
-      console.error("Error deleting test runs:", err);
-      throw Error("Error deleting test runs");
+    console.error("Error deleting test runs:", err);
+    throw Error("Error deleting test runs");
   }
 }
 
 export async function deleteSingleTestRunById(testRunId) {
   try {
-      const res = await fetch(`${API_URL}/ApiGen/Projects/testrun/${testRunId}`, {
-          method: "DELETE",
-      });
+    const res = await fetch(`${API_URL}/ApiGen/Projects/testrun/${testRunId}`, {
+      method: "DELETE",
+    });
 
-      if (!res.ok) {
-          const errorData = await res.json();
-          console.error("Error response from server:", errorData);
-          throw Error(errorData.title || "Failed to delete test run");
-      }
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error("Error response from server:", errorData);
+      throw Error(errorData.title || "Failed to delete test run");
+    }
 
-      return true;
+    return true;
   } catch (err) {
-      console.error("Error deleting test run:", err);
-      throw Error("Error deleting test run");
+    console.error("Error deleting test run:", err);
+    throw Error("Error deleting test run");
   }
 }
-export async function fetchTestCases(projectName, pageNumber = 1, pageSize = 25, method =null, testType=null,path=null) {
+export async function fetchTestCases(
+  projectName,
+  pageNumber = 1,
+  pageSize = 25,
+  method = null,
+  testType = null,
+  path = null
+) {
   try {
     // Construct query parameters dynamically
     const params = { pageSize, pageNumber };
-    
+
     if (method) params.method = method;
     if (testType) params.testType = testType;
-    if(path) params.path = path;
+    if (path) params.path = path;
     const queryString = new URLSearchParams(params).toString();
 
-    const res = await fetch(`${API_URL}/TestCasesData/${projectName}/testcases?${queryString}`);
+    const res = await fetch(
+      `${API_URL}/TestCasesData/${projectName}/testcases?${queryString}`
+    );
 
     if (!res.ok) {
       const errorData = await res.json();
@@ -604,21 +619,21 @@ export async function fetchTestCases(projectName, pageNumber = 1, pageSize = 25,
   }
 }
 
-
 export async function fetchTestCaseInfo(projectName) {
   try {
-      const res = await fetch(`${API_URL}/TestCasesData/${projectName}/testcases/info`);
-      
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error("Error response from server:", errorData);
-        throw Error(errorData.title || "Failed to delete test run");
+    const res = await fetch(
+      `${API_URL}/TestCasesData/${projectName}/testcases/info`
+    );
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error("Error response from server:", errorData);
+      throw Error(errorData.title || "Failed to delete test run");
     }
     //console.log(res.json);
-      return res.json();
+    return res.json();
   } catch (error) {
-      console.error("Error fetching test case info:", error);
-      throw error;
+    console.error("Error fetching test case info:", error);
+    throw error;
   }
 }
-
